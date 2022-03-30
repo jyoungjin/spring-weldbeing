@@ -1,0 +1,271 @@
+# database
+spring:
+  datasource:
+    jdbc-url: jdbc:mysql://localhost:3306/weldbeing?serverTimezone=UTC&characterEncoding=UTF-8
+    username: root
+    password: dudwls12!
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+map:
+  folderNames:
+    - 01. Spraying Systems
+    - 02. S & T
+    - 03. Samyoung
+    - 04. KUMHWA INDUSTRY
+    - 05. DECATECH
+    - 06. JS TECHNOS
+    - 07. BUHEUNG
+    - 08. CORE PLANT
+    - 09. DOOSAN
+    - 10. HANJUNG
+    - 11. WELCRON KANGWON
+    - 12. DAEKYUNG MACHINERY & ENGINEERING
+    - 13. LUKOIL
+    - 14. Kiturami
+    - 15. Hanwha
+    - 16. HYUNDAI
+    - 17. KMT
+    - 18. DAE KYUNG BEND
+    - 19. DMT
+    - 20. FASECO
+    - 21. WOOSUNG FLOWTEC
+    - 22. KOREA FILTER
+    - 23. DAEAH
+    - 24. CHUN LOSS PREVENTION
+    - 25. PNI
+    - 26. DAEHEUNG IND
+    - 27. UNISON Engineering
+    - 28. JUNJIN
+    - 29. D & Tech
+    - 30. BS RND
+    - 31. Sun & Shield
+    - 32. AJOU ENGINEERING
+    - 33. MOOJIN TECHNOLOGYS
+    - 34. 조연산업
+    - 35. YOUNG WON
+    - 36. YULWON ENGINEERING
+    - 37. SAMIL
+    - 38. DEOK KWANG
+    - 39. YOOIL ENGINEERING
+    - 40. IFT
+    - 41. UTK
+    - 42. NB e&c
+    - 43. Mokyang Technology
+    - 44. HAEJEON
+    - 45. KOREA COAST GUARD
+    - 46. ULP
+    - 47. TG Enterprise
+    - 이름없음
+
+
+  pqrKey:
+    pqrInfo:
+      - pqr_info
+    weldingParameters:
+      - welding_parameters
+    baseMetals:
+      - base_metals
+    fillerMetals:
+      - filler_metals
+    positions:
+      - position
+    preheats:
+      - preheat
+    postWeldHeatTreatments:
+      - postweld_heat_treatment
+    gases:
+      - gas
+    electricalCharacteristics:
+      - electrical_characterisitics
+    techniques:
+      - technique
+
+    #  PQRInfo
+    pqrNo:
+      - procedure_qualification_record_no
+      - pqr_no
+      - procedure_qualification_record_no
+    wpsNo:
+      - welding_procedure_specification_no
+      - wps_no
+      - wps_no
+    type:
+      - type
+      - types
+    company:
+      - company
+    originalFileName:
+      - original_file_name
+
+    #  WeldingParameter
+    beadNo:
+      - weld_layer
+      - bead_no
+      - weld_layer(s)
+    process:
+      - process
+    electrode:
+      - electrode(AWS Class)
+      - classification
+      - class
+      - electrode
+      - filler_metal_class
+    size:
+      - size(ømm)
+      - size(mm)
+      - size(in)
+      - dia
+      - diameter
+      - filler_metal_dia(mm)
+    amps:
+      - amps(Range)
+      - amps(A)
+      - amp(A)
+      - amp_range(A)
+    volt:
+      - volt(V)
+      - volt_range(V)
+      - volts(Range)
+    speed:
+      - speed(mm/min)
+      - speed(in/min)
+      - speed
+      - speed(cm/min)
+      - travel_speed(mm/min)
+      - travel_speed_range(cm/Min)
+      - travel_speed_range(cm/min)
+      - travel_speed(Range)
+    heatInput:
+      - heat_input(kj/mm)
+      - heat_input(kJ/mm)
+      - heat_input
+      - heat_input(kJ/cm)
+
+    #  BaseMetal
+    pNo:
+      - p_no
+    grNo:
+      - gr_no
+    materialSpec:
+      - material_spec
+    typeAndGrade:
+      - grade/type_or_uns_number
+      - type_and_grade
+    #  thickness TensileTestValue 에 존재
+    diameter:
+      - diameter
+      - diameter_of_test_coupon
+    depositWeldMetalThickness:
+      - deposit_weld_metal
+      - deposit_weld_metal_thickness
+
+    # FillerMetal
+    sfaNo:
+      - sfa_specification
+      - sfa_specification
+      - sfa_no
+    awsClass:
+      - aws_classification
+      - aws_class
+    fNo:
+      - filler_metal_f_no
+      - filler_metal_f_no
+      - f_no
+    aNo:
+      - weld_metal_analysis_a_no
+      - weld_metal_analysis_a_no
+      - a_no
+    fillerProductForm:
+      - filler_metal_product_form
+      - filler_product_form
+    sizeOfElectrode:
+      - size_of_filler_metal
+      - size_of_electrode
+      - size_of_electrode
+    wireFluxClass:
+      - wire_flux_class
+    supplemental:
+      - supplemental_filler_metal
+      - supplemental
+      - supplementary_dioxide_material
+    alloyElements:
+      - alloy_elements
+
+    #  Position
+    positionOfGroove:
+      - position
+      - position_of_groove
+    progression:
+      - progression
+      - weld_progression(Uphill, Downhill)
+      - weld_progression
+      - weld_progression(Upjill, Downhill)
+
+    #  Preheat
+    preheatTemp:
+      - preheat_temp
+    interPassTemp:
+      - interpass_temp
+
+    #  PostWeldHeatTreatment
+    temperature:
+      - pwht_temp
+      - temperature
+    holdingTime:
+      - holding_time
+      - holding_time
+      - time
+
+    #  Gases
+    shieldingGas:
+      - shielding_gas
+      - shielding
+    gasBacking:
+      - gas_backing
+      - backing
+    trailingGas:
+      - trailing_gas
+      - trailing
+
+    #  Gas
+    gas:
+      - gas
+      - Gas(es)
+    percentComposition:
+      - percent_composition
+      - mixture
+    flow:
+      - flow
+      - flow_rate
+
+    #  ElectricalCharacteristics
+    current:
+      - current
+    polarity:
+      - polarity
+    transferMode:
+      - transfer_mode
+    tungstenElectrodeType:
+      - tungsten_electrode_type
+    tungstenElectrodeSize:
+      - tungsten_electrode_size
+
+    # Technique
+    stringerOrWeaveBead:
+      - string_or_weave_bead
+      - stringer_or_weave_bead
+      - string_of_weave_bead
+    oscillation:
+      - oscillation
+    multiPassOrSinglePass:
+      - multipass_or_singlepass
+      - multiples_or_singlepass
+      - multipass_or_singlepass(per side)
+    singleOrMultipleElectrodes:
+      - single_or_multiple_electrodes
+    closedToOutChamber:
+      - closed_to_out_chamber
+    useOfThermalProcesses:
+      - use_of_thermal_process
+    others:
+      - others

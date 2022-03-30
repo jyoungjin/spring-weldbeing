@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.onj.springweldbeing.pqr.pqrinfo.PQRInfoSevice">
+
+    <select id="getPqrInfos" resultType="com.onj.springweldbeing.pqr.pqrinfo.PQRInfo">
+        select
+            id,
+            company,
+            pqr_no,
+            pqr_date,
+            wps_no,
+            wps_rev_no,
+            welding_process1,
+            welding_process2,
+            welding_process3,
+            welding_type1,
+            welding_type2,
+            welding_type3,
+            origin_file_name,
+            other,
+            create_time,
+            create_user,
+            modify_time,
+            modify_user
+        from
+            pqr_info
+    </select>
+
+    <insert id="insertPQRInfo" parameterType="com.onj.springweldbeing.pqr.pqrinfo.PQRInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into pqr_info
+        (
+            company,
+            pqr_no,
+            pqr_date,
+            wps_no,
+            wps_rev_no,
+            welding_process1,
+            welding_process2,
+            welding_process3,
+            welding_type1,
+            welding_type2,
+            welding_type3,
+            origin_file_name,
+            other,
+            create_time,
+            create_user,
+            modify_time,
+            modify_user
+        )
+        values
+        (
+            #{company},
+            #{pqrNo},
+            #{pqrDate},
+            #{wpsNo},
+            #{wpsRevNo},
+            #{weldingProcess1},
+            #{weldingProcess2},
+            #{weldingProcess3},
+            #{weldingType1},
+            #{weldingType2},
+            #{weldingType3},
+            #{originFileName},
+            #{other},
+            NOW(),
+            0,
+            NOW(),
+            0
+        )
+    </insert>
+
+    <select id="isExistPQR" parameterType="com.onj.springweldbeing.pqr.pqrinfo.PQRInfo" resultType="boolean">
+        select
+            IF(COUNT(*) = 1,1,0)
+        from
+            pqr_info
+        where
+            company=#{company}
+            AND pqr_no=#{pqrNo}
+    </select>
+
+</mapper>

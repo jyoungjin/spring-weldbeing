@@ -1,0 +1,356 @@
+{
+  "pqr_info": {
+    "company": "Spraying Systems",
+    "original_file_name": "R_114_GT-0808-01.pdf",
+    "procedure_qualification_record_no": "QGT-0808-01",
+    "date": "2019.09.04",
+    "welding_procedure_specification_no": "GT-0808-01",
+    "welding_process1": "GTAW",
+    "welding_process2": "",
+    "welding_process3": "",
+    "type": "Manual"
+  },
+  "notes": {},
+  "joint_design": {
+    "root_face": "2mm",
+    "root_opening": "4mm",
+    "groove_angle": "60°"
+  },
+  "welding_parameters": [
+    {
+      "bead_no": "1",
+      "process": "GTAW",
+      "electrode": "ER316L",
+      "size(mm)": "2.4",
+      "amps(A)": "140",
+      "volt(V)": "15",
+      "speed(mm/min)": "60",
+      "heat_input(kj/mm)": "2.1"
+    },
+    {
+      "bead_no": "2",
+      "process": "GTAW",
+      "electrode": "ER316L",
+      "size(mm)": "2.4",
+      "amps(A)": "158",
+      "volt(V)": "14",
+      "speed(mm/min)": "65",
+      "heat_input(kj/mm)": "2.04"
+    },
+    {
+      "bead_no": "3",
+      "process": "GTAW",
+      "electrode": "ER316L",
+      "size(mm)": "2.4",
+      "amps(A)": "162",
+      "volt(V)": "14",
+      "speed(mm/min)": "60",
+      "heat_input(kj/mm)": "2.27"
+    },
+    {
+      "bead_no": "4",
+      "process": "GTAW",
+      "electrode": "ER316L",
+      "size(mm)": "2.4",
+      "amps(A)": "158",
+      "volt(V)": "14",
+      "speed(mm/min)": "63",
+      "heat_input(kj/mm)": "2.11"
+    },
+    {
+      "bead_no": "5",
+      "process": "GTAW",
+      "electrode": "ER316L",
+      "size(mm)": "2.4",
+      "amps(A)": "169",
+      "volt(V)": "14",
+      "speed(mm/min)": "71",
+      "heat_input(kj/mm)": "2"
+    },
+    {
+      "bead_no": "6",
+      "process": "GTAW",
+      "electrode": "ER316L",
+      "size(mm)": "2.4",
+      "amps(A)": "168",
+      "volt(V)": "15",
+      "speed(mm/min)": "62",
+      "heat_input(kj/mm)": "2.44"
+    },
+    {
+      "bead_no": "7",
+      "process": "GTAW",
+      "electrode": "ER316L",
+      "size(mm)": "2.4",
+      "amps(A)": "165",
+      "volt(V)": "14",
+      "speed(mm/min)": "61",
+      "heat_input(kj/mm)": "2.27"
+    }
+  ],
+  "base_metals": {
+    "p_no": "8",
+    "gr_no": "1",
+    "to_p_no": "8",
+    "to_gr_no": "1",
+    "type_and_grade": "ASTM A240-316L",
+    "to_type_and_grade": "ASTM A240-316L",
+    "thickness": "10mm",
+    "to_thickness": "10mm",
+    "diameter": "N/A",
+    "deposit_weld_metal_thickness": "10mm"
+  },
+  "filler_metals": {
+    "sfa_no": "AWS A5.9",
+    "aws_class": "ER316L",
+    "f_no": "6",
+    "a_no": "-",
+    "filler_product_form": "Solid",
+    "size_of_electrode": "2.4mm",
+    "wire_flux_class": "N/A",
+    "flux_trade_name": "N/A",
+    "others": "TGC-316L(Chosun)",
+    "supplemental": "N/A",
+    "alloy_elements": "N/A"
+  },
+  "position": {
+    "position_of_groove": "3G",
+    "progression": "UP",
+    "others": "None"
+  },
+  "preheat": {
+    "preheat_temp": "24°C",
+    "interpass_temp": "145°C",
+    "others": ""
+  },
+  "postweld_heat_treatment": {
+    "temperature": "None",
+    "holding_time": "None",
+    "others": "None"
+  },
+  "gas": {
+    "shielding_gas": {
+      "gas": "Ar",
+      "percent_composition": "Single",
+      "flow": "17L/min"
+    },
+    "gas_backing": {
+      "gas": "Ar",
+      "percent_composition": "Single",
+      "flow": "17L/min"
+    },
+    "trailing_gas": {
+      "gas": "None",
+      "percent_composition": "None",
+      "flow": "None"
+    },
+    "others": "None"
+  },
+  "electrical_characterisitics": {
+    "current": "DC",
+    "polarity": "EN",
+    "transfer_mode": "N/A",
+    "tungsten_electrode_type": "EWTh-2",
+    "tungsten_electrode_size": "2.4mm",
+    "others": "None"
+  },
+  "technique": {
+    "stringer_or_weave_bead": "Both",
+    "oscillation": "None",
+    "multipass_or_singlepass": "Multi",
+    "single_or_multiple_electrodes": "Single",
+    "closed_to_out_chamber": "None",
+    "use_of_thermal_process": "None",
+    "others": "None"
+  },
+  "tensile_tests": {
+    "report_no": "194083-G06497",
+    "values": [
+      {
+        "specimen_no": "2-T-1",
+        "width(mm)": "19.06",
+        "thickness(mm)": "10.04",
+        "area(mm^2)": "191.4",
+        "ultimate_total_load(N)": "113061",
+        "ultimate_unit_stress(N/mm^2)": "591",
+        "type_of_failure_and_location": "Base Metal / Ductile"
+      },
+      {
+        "specimen_no": "2-T-2",
+        "width(mm)": "19",
+        "thickness(mm)": "10.03",
+        "area(mm^2)": "190.6",
+        "ultimate_total_load(N)": "113781",
+        "ultimate_unit_stress(N/mm^2)": "597",
+        "type_of_failure_and_location": "Base Metal / Ductile"
+      }
+    ]
+  },
+  "guided_bend_tests": {
+    "report_no": "194083-G06498",
+    "values": [
+      {
+        "type_and_figure": "Face Bend - 2-F1/QW-462.3(a)",
+        "result": "Not Defected"
+      },
+      {
+        "type_and_figure": "Face Bend - 2-F2/QW-462.3(a)",
+        "result": "Not Defected"
+      },
+      {
+        "type_and_figure": "Root Bend - 2-R1/QW-462.3(a)",
+        "result": "Not Defected"
+      },
+      {
+        "type_and_figure": "Root Bend - 2-R2/QW-462.3(a)",
+        "result": "Not Defected"
+      }
+    ]
+  },
+  "notch_toughness_tests": {
+    "report_no": "194083-G06499",
+    "values": [
+      {
+        "specimen_no": "F-1",
+        "notch_location": "Fusion Line",
+        "notch_type": "V",
+        "test_temp(°C)": "-196",
+        "impact_value(J)": "109",
+        "lateral_exp": {
+          "shear": "",
+          "miels": ""
+        },
+        "drop_weight": {
+          "break": "",
+          "no_break": ""
+        }
+      },
+      {
+        "specimen_no": "F-2",
+        "notch_location": "Fusion Line",
+        "notch_type": "V",
+        "test_temp(°C)": "-196",
+        "impact_value(J)": "112",
+        "lateral_exp": {
+          "shear": "",
+          "miels": ""
+        },
+        "drop_weight": {
+          "break": "",
+          "no_break": ""
+        }
+      },
+      {
+        "specimen_no": "F-3",
+        "notch_location": "Fusion Line",
+        "notch_type": "V",
+        "test_temp(°C)": "-196",
+        "impact_value(J)": "129",
+        "lateral_exp": {
+          "shear": "",
+          "miels": ""
+        },
+        "drop_weight": {
+          "break": "",
+          "no_break": ""
+        }
+      },
+      {
+        "specimen_no": "F2-1",
+        "notch_location": "FL+2mm",
+        "notch_type": "V",
+        "test_temp(°C)": "-196",
+        "impact_value(J)": "187",
+        "lateral_exp": {
+          "shear": "",
+          "miels": ""
+        },
+        "drop_weight": {
+          "break": "",
+          "no_break": ""
+        }
+      },
+      {
+        "specimen_no": "F2-2",
+        "notch_location": "FL+2mm",
+        "notch_type": "V",
+        "test_temp(°C)": "-196",
+        "impact_value(J)": "183",
+        "lateral_exp": {
+          "shear": "",
+          "miels": ""
+        },
+        "drop_weight": {
+          "break": "",
+          "no_break": ""
+        }
+      },
+      {
+        "specimen_no": "F2-3",
+        "notch_location": "FL+2mm",
+        "notch_type": "V",
+        "test_temp(°C)": "-196",
+        "impact_value(J)": "166",
+        "lateral_exp": {
+          "shear": "",
+          "miels": ""
+        },
+        "drop_weight": {
+          "break": "",
+          "no_break": ""
+        }
+      },
+      {
+        "specimen_no": "W-1",
+        "notch_location": "Weld Metal",
+        "notch_type": "V",
+        "test_temp(°C)": "-196",
+        "impact_value(J)": "59",
+        "lateral_exp": {
+          "shear": "",
+          "miels": ""
+        },
+        "drop_weight": {
+          "break": "",
+          "no_break": ""
+        }
+      },
+      {
+        "specimen_no": "W-2",
+        "notch_location": "Weld Metal",
+        "notch_type": "V",
+        "test_temp(°C)": "-196",
+        "impact_value(J)": "64",
+        "lateral_exp": {
+          "shear": "",
+          "miels": ""
+        },
+        "drop_weight": {
+          "break": "",
+          "no_break": ""
+        }
+      },
+      {
+        "specimen_no": "W-3",
+        "notch_location": "Weld Metal",
+        "notch_type": "V",
+        "test_temp(°C)": "-196",
+        "impact_value(J)": "75",
+        "lateral_exp": {
+          "shear": "",
+          "miels": ""
+        },
+        "drop_weight": {
+          "break": "",
+          "no_break": ""
+        }
+      }
+    ]
+  },
+  "fillet_weld_tests": {
+    "result_satisfactory": "",
+    "penetration_into_parent_metal": "",
+    "type_and_character_of_failure": "None",
+    "macro_result": "None"
+  }
+}

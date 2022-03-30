@@ -1,0 +1,256 @@
+{
+  "pqr_info": {
+    "company": "Spraying Systems",
+    "original_file_name": "R_112_GT-0108-01.pdf",
+    "procedure_qualification_record_no": "QGT-0108-01",
+    "date": "2019.09.10 ",
+    "welding_procedure_specification_no": "GT-0108-01",
+    "welding_process1": "GTAW",
+    "welding_process2": "",
+    "welding_process3": "",
+    "type": "Manual"
+  },
+  "notes": {},
+  "joint_design": {
+    "root_face": "1mm",
+    "root_opening": "2mm",
+    "groove_angle": "60°"
+  },
+  "welding_parameters": [
+    {
+      "bead_no": "1",
+      "process": "GTAW",
+      "electrode": "ER309L",
+      "size(mm)": "2.4",
+      "amps(A)": "128",
+      "volt(V)": "11",
+      "speed(mm/min)": "52.4",
+      "heat_input(kj/mm)": "1.61"
+    },
+    {
+      "bead_no": "2",
+      "process": "GTAW",
+      "electrode": "ER309L",
+      "size(mm)": "2.4",
+      "amps(A)": "137",
+      "volt(V)": "12",
+      "speed(mm/min)": "74.1",
+      "heat_input(kj/mm)": "1.33"
+    },
+    {
+      "bead_no": "3",
+      "process": "GTAW",
+      "electrode": "ER309L",
+      "size(mm)": "2.4",
+      "amps(A)": "156",
+      "volt(V)": "12",
+      "speed(mm/min)": "109.5",
+      "heat_input(kj/mm)": "1.03"
+    },
+    {
+      "bead_no": "4",
+      "process": "GTAW",
+      "electrode": "ER309L",
+      "size(mm)": "2.4",
+      "amps(A)": "153",
+      "volt(V)": "12",
+      "speed(mm/min)": "112.8",
+      "heat_input(kj/mm)": "0.98"
+    },
+    {
+      "bead_no": "5",
+      "process": "GTAW",
+      "electrode": "ER309L",
+      "size(mm)": "2.4",
+      "amps(A)": "155",
+      "volt(V)": "12",
+      "speed(mm/min)": "105.3",
+      "heat_input(kj/mm)": "1.06"
+    },
+    {
+      "bead_no": "6",
+      "process": "GTAW",
+      "electrode": "ER309L",
+      "size(mm)": "2.4",
+      "amps(A)": "175",
+      "volt(V)": "13",
+      "speed(mm/min)": "86.7",
+      "heat_input(kj/mm)": "1.57"
+    },
+    {
+      "bead_no": "7",
+      "process": "GTAW",
+      "electrode": "ER309L",
+      "size(mm)": "2.4",
+      "amps(A)": "178",
+      "volt(V)": "13",
+      "speed(mm/min)": "95.8",
+      "heat_input(kj/mm)": "1.45"
+    },
+    {
+      "bead_no": "8",
+      "process": "GTAW",
+      "electrode": "ER309L",
+      "size(mm)": "2.4",
+      "amps(A)": "185",
+      "volt(V)": "13",
+      "speed(mm/min)": "64.4",
+      "heat_input(kj/mm)": "2.24"
+    },
+    {
+      "bead_no": "9",
+      "process": "GTAW",
+      "electrode": "ER309L",
+      "size(mm)": "2.4",
+      "amps(A)": "186",
+      "volt(V)": "13",
+      "speed(mm/min)": "67.1",
+      "heat_input(kj/mm)": "2.16"
+    }
+  ],
+  "base_metals": {
+    "p_no": "1",
+    "gr_no": "2",
+    "to_p_no": "8",
+    "to_gr_no": "1",
+    "type_and_grade": "ASTM A516-70",
+    "to_type_and_grade": "ASTM A240-316L",
+    "thickness": "10mm",
+    "to_thickness": "10mm",
+    "diameter": "N/A",
+    "deposit_weld_metal_thickness": "10mm"
+  },
+  "filler_metals": {
+    "sfa_no": "AWS A5.9",
+    "aws_class": "ER309L",
+    "f_no": "6",
+    "a_no": "-",
+    "filler_product_form": "Solid",
+    "size_of_electrode": "2.4mm",
+    "wire_flux_class": "N/A",
+    "flux_trade_name": "N/A",
+    "others": "TGC-309L",
+    "supplemental": "N/A",
+    "alloy_elements": "N/A"
+  },
+  "position": {
+    "position_of_groove": "3G",
+    "progression": "UP",
+    "others": "None"
+  },
+  "preheat": {
+    "preheat_temp": "21°C",
+    "interpass_temp": "121°C",
+    "others": ""
+  },
+  "postweld_heat_treatment": {
+    "temperature": "None",
+    "holding_time": "None",
+    "others": "None"
+  },
+  "gas": {
+    "shielding_gas": {
+      "gas": "Ar",
+      "percent_composition": "Single",
+      "flow": "7L/min"
+    },
+    "gas_backing": {
+      "gas": "Ar",
+      "percent_composition": "Single",
+      "flow": "5L/min"
+    },
+    "trailing_gas": {
+      "gas": "None",
+      "percent_composition": "None",
+      "flow": "None"
+    },
+    "others": "None"
+  },
+  "electrical_characterisitics": {
+    "current": "DC",
+    "polarity": "EN",
+    "transfer_mode": "N/A",
+    "tungsten_electrode_type": "EWTh-2",
+    "tungsten_electrode_size": "2.4mm",
+    "others": "None"
+  },
+  "technique": {
+    "stringer_or_weave_bead": "Both",
+    "oscillation": "None",
+    "multipass_or_singlepass": "Multi",
+    "single_or_multiple_electrodes": "Single",
+    "closed_to_out_chamber": "None",
+    "use_of_thermal_process": "None",
+    "others": "None"
+  },
+  "tensile_tests": {
+    "report_no": "194084-G06520",
+    "values": [
+      {
+        "specimen_no": "5-T-1",
+        "width(mm)": "19.03",
+        "thickness(mm)": "10.11",
+        "area(mm^2)": "192.4",
+        "ultimate_total_load(N)": "111219",
+        "ultimate_unit_stress(N/mm^2)": "578",
+        "type_of_failure_and_location": "Base Metal / Ductile"
+      },
+      {
+        "specimen_no": "5-T-2",
+        "width(mm)": "19.05",
+        "thickness(mm)": "10.06",
+        "area(mm^2)": "191.6",
+        "ultimate_total_load(N)": "110688",
+        "ultimate_unit_stress(N/mm^2)": "578",
+        "type_of_failure_and_location": "Base Metal / Ductile"
+      }
+    ]
+  },
+  "guided_bend_tests": {
+    "report_no": "194084-G06521",
+    "values": [
+      {
+        "type_and_figure": "Face Bend - 5F-1/QW-462.3(a)",
+        "result": "Not Defected"
+      },
+      {
+        "type_and_figure": "Face Bend - 5F-2/QW-462.3(a)",
+        "result": "Not Defected"
+      },
+      {
+        "type_and_figure": "Root Bend - 5R-1/QW-462.3(a)",
+        "result": "Not Defected"
+      },
+      {
+        "type_and_figure": "Root Bend - 5R-2/QW-462.3(a)",
+        "result": "Not Defected"
+      }
+    ]
+  },
+  "notch_toughness_tests": {
+    "report_no": "N/A",
+    "values": [
+      {
+        "specimen_no": "",
+        "notch_location": "",
+        "notch_type": "",
+        "test_temp(°C)": "",
+        "impact_value(J)": "",
+        "lateral_exp": {
+          "shear": "",
+          "miels": ""
+        },
+        "drop_weight": {
+          "break": "",
+          "no_break": ""
+        }
+      }
+    ]
+  },
+  "fillet_weld_tests": {
+    "result_satisfactory": "",
+    "penetration_into_parent_metal": "",
+    "type_and_character_of_failure": "None",
+    "macro_result": "None"
+  }
+}
