@@ -110,7 +110,7 @@ map:
       - class
       - electrode
       - filler_metal_class
-    size:
+    electrodeSize:
       - size(ømm)
       - size(mm)
       - size(in)

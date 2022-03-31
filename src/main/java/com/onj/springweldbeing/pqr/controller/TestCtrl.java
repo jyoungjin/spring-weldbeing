@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -181,8 +180,44 @@ public class TestCtrl {
         for (int i = 0; i < weldingParametersJson.length(); i++) {
             JSONObject weldingParameterJson = weldingParametersJson.getJSONObject(i);
             WeldingParameter weldingParameter = new WeldingParameter();
-    
 
+            if (weldingParameterJson.has("action")) {
+                weldingParameter.setAction(weldingParameterJson.getString("action"));
+            }else{
+                for (String key : keyData.pqrKey.getOrDefault("process", new HashSet<>())) {
+                    if (!weldingParameterJson.isNull(key)) {
+                        weldingParameter.setProcess(weldingParameterJson.getString(key));
+                        weldingParameterJson.remove(key);
+                    }
+                }
+
+                for (String key : keyData.pqrKey.getOrDefault("beadNo", new HashSet<>())) {
+                    if (!weldingParameterJson.isNull(key)) {
+                        weldingParameter.setBeadNo(weldingParameterJson.getString(key));
+                        weldingParameterJson.remove(key);
+                    }
+                }
+
+                for (String key : keyData.pqrKey.getOrDefault("electrode", new HashSet<>())) {
+                    if (!weldingParameterJson.isNull(key)) {
+                        weldingParameter.setElectrode(weldingParameterJson.getString(key));
+                        weldingParameterJson.remove(key);
+                    }
+                }
+
+                for (String key : keyData.pqrKey.getOrDefault("electrodeSize", new HashSet<>())) {
+                    if (!weldingParameterJson.isNull(key)) {
+                        String electrodeSize = weldingParameterJson.getString(key);
+                        if(electrodeSize.contains(",")){
+
+                        }
+                        weldingParameter.setElectrodeSize(1);
+                        weldingParameterJson.remove(key);
+                    }
+                }
+            }
+
+            weldingParameters.add(weldingParameter);
         }
 
         return weldingParameters;
