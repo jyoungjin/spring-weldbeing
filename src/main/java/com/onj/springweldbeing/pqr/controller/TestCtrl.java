@@ -7,6 +7,7 @@ import com.onj.springweldbeing.pqr.PQR;
 import com.onj.springweldbeing.pqr.pqrinfo.PQRInfo;
 import com.onj.springweldbeing.pqr.pqrinfo.PQRInfoSevice;
 import com.onj.springweldbeing.pqr.weldingparameter.WeldingParameter;
+import com.onj.springweldbeing.pqr.weldingparameter.WeldingParameterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
@@ -15,6 +16,7 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,10 +28,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 @RestController
-@RequestMapping("/test")
+@RequestMapping("/insert")
 @RequiredArgsConstructor
 public class TestCtrl {
     private final KeyData keyData;
@@ -37,17 +38,24 @@ public class TestCtrl {
     @Autowired
     PQRInfoSevice pqrInfoSevice;
 
-    @GetMapping("/getPqrInfoList")
-    public List<PQRInfo> getPqrInfoList(){
-        return pqrInfoSevice.getPqrInfos();
-    }
+    @Autowired
+    WeldingParameterService weldingParameterService;
 
-    @GetMapping("/getJsonFiles")
-    public void getJsonFiles() throws IOException, JSONException, IllegalAccessException {
+
+//    @GetMapping("/getPqrInfoList")
+//    public List<PQRInfo> getPqrInfoList(){
+//        return pqrInfoSevice.getPqrInfos();
+//    }
+
+    @GetMapping("/company01")
+    @Transactional
+    public ArrayList<PQR> getJsonFiles() throws IOException, JSONException, IllegalAccessException {
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
         String pattern =  "json/01. Spraying Systems/*.json";
+
+        ArrayList<PQR> pqrList = new ArrayList<>();
 
         Resource[] resources = null;
 
@@ -92,15 +100,12 @@ public class TestCtrl {
                 }
             }
 
-            // DATA insert
-//            if(!isExistData(pqr.getPqrInfo())){
-//                pqrInfoSevice.insertPQRInfo(pqr.getPqrInfo());
-//                System.out.println("return key: "+pqr.getPqrInfo().getId());
-//            }else{
-//                System.out.println("이미 존재하는 Data입니다!");
-//            }
+            pqrList.add(pqr);
+
+            insertPQR(pqr);
 
         }
+        return pqrList;
     }
 
 
@@ -207,14 +212,111 @@ public class TestCtrl {
 
                 for (String key : keyData.pqrKey.getOrDefault("electrodeSize", new HashSet<>())) {
                     if (!weldingParameterJson.isNull(key)) {
-                        String electrodeSize = weldingParameterJson.getString(key);
+                        String electrodeSize = weldingParameterJson.getString(key).replaceAll("ø","");
                         if(electrodeSize.contains(",")){
-
+                            electrodeSize = electrodeSize.split(",")[0];
                         }
-                        weldingParameter.setElectrodeSize(1);
+                        weldingParameter.setElectrodeSize(Double.valueOf(electrodeSize));
                         weldingParameterJson.remove(key);
                     }
                 }
+
+                for (String key : keyData.pqrKey.getOrDefault("amps", new HashSet<>())) {
+                    if (!weldingParameterJson.isNull(key)) {
+                        String amps = weldingParameterJson.getString(key);
+                        Double ampMin;
+                        Double ampMax;
+                        if(amps.contains("~")){
+                            String[] ampsArr = amps.split("~");
+                            ampMin = Double.valueOf(ampsArr[0]);
+                            ampMax = Double.valueOf(ampsArr[1]);
+                        }else{
+                            ampMin = Double.valueOf(amps);
+                            ampMax = Double.valueOf(amps);
+                        }
+                        weldingParameter.setAmpMin(ampMin);
+                        weldingParameter.setAmpMax(ampMax);
+                        weldingParameterJson.remove(key);
+                    }
+                }
+
+                for (String key : keyData.pqrKey.getOrDefault("volt", new HashSet<>())) {
+                    if (!weldingParameterJson.isNull(key)) {
+                        String amps = weldingParameterJson.getString(key);
+                        Double voltMin;
+                        Double voltMax;
+                        if(amps.contains("~")){
+                            String[] ampsArr = amps.split("~");
+                            voltMin = Double.valueOf(ampsArr[0]);
+                            voltMax = Double.valueOf(ampsArr[1]);
+                        }else{
+                            voltMin = Double.valueOf(amps);
+                            voltMax = Double.valueOf(amps);
+                        }
+                        weldingParameter.setVoltMin(voltMin);
+                        weldingParameter.setVoltMax(voltMax);
+                        weldingParameterJson.remove(key);
+                    }
+                }
+
+                for (String key : keyData.pqrKey.getOrDefault("speed", new HashSet<>())) {
+                    if (!weldingParameterJson.isNull(key)) {
+                        String speed = weldingParameterJson.getString(key);
+                        Double speedMin;
+                        Double speedMax;
+                        if(!speed.trim().isEmpty()){
+
+                            if(speed.contains("~")){
+                                String[] speedArr = speed.split("~");
+                                speedMin = Double.valueOf(speedArr[0]);
+                                speedMax = Double.valueOf(speedArr[1]);
+                            }else{
+                                speedMin = Double.valueOf(speed);
+                                speedMax = Double.valueOf(speed);
+                            }
+
+                            if(key.toLowerCase().contains("cm/min")){
+                                speedMin = cmminTommmin(speedMin);
+                                speedMax = cmminTommmin(speedMax);
+                            }else if(key.toLowerCase().contains("im/min")){
+                                speedMin = inminTommmin(speedMin);
+                                speedMax = inminTommmin(speedMax);
+                            }
+
+                            weldingParameter.setSpeedMin(speedMin);
+                            weldingParameter.setSpeedMax(speedMax);
+                        }
+                        weldingParameterJson.remove(key);
+                    }
+                }
+
+                for(String key : keyData.pqrKey.getOrDefault("heatInput", new HashSet<>())){
+                    if (!weldingParameterJson.isNull(key)) {
+                        String heatInput = weldingParameterJson.getString(key);
+                        Double heatInputMin;
+                        Double heatInputMax;
+                        if(!heatInput.trim().isEmpty()){
+                            if(heatInput.contains("~")){
+                                String[] heatInputArr = heatInput.split("~");
+                                heatInputMin = Double.valueOf(heatInputArr[0]);
+                                heatInputMax = Double.valueOf(heatInputArr[1]);
+                            }else{
+                                heatInputMin = Double.valueOf(heatInput);
+                                heatInputMax = Double.valueOf(heatInput);
+                            }
+
+                            if(key.toLowerCase().contains("kj/cm")){
+                                heatInputMin = kjcmTokjmm(heatInputMin);
+                                heatInputMax = kjcmTokjmm(heatInputMax);
+                            }
+                            weldingParameter.setHeatInputMin(heatInputMin);
+                            weldingParameter.setHeatInputMax(heatInputMax);
+                        }
+                        weldingParameterJson.remove(key);
+                    }
+                }
+                weldingParameter.setOther(weldingParameterJson.toString());
+
             }
 
             weldingParameters.add(weldingParameter);
@@ -224,8 +326,8 @@ public class TestCtrl {
     }
 
 
-    // PQR 데이터가 이미 존재 하는 Data 인지 확인
-    private boolean isExistData(PQRInfo pqrInfo){
+    // PQR Info 데이터가 이미 존재 하는 Data 인지 확인
+    private boolean isExistPQRInfoData(PQRInfo pqrInfo){
         boolean isExist = false;
 
         if(pqrInfoSevice.isExistPQR(pqrInfo)){
@@ -235,5 +337,55 @@ public class TestCtrl {
         return isExist;
     }
 
+    // PQR WeldingParameter 데이터가 이미 존재 하는 Data 인지 확인
+    private boolean isExistPQRWeldingParameterData(WeldingParameter weldingParameter){
+        boolean isExist = false;
+
+        if(weldingParameterService.isExistPQRWeldingParameter(weldingParameter)){
+            isExist = true;
+        };
+
+        return isExist;
+    }
+
+    private Double cmminTommmin(Double x){
+        return x*10;
+    }
+
+    private Double inminTommmin(Double x){
+        return x*25.4;
+    }
+
+    private Double kjcmTokjmm(Double x){
+        return x*10;
+    }
+
+
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    public void insertPQR(PQR pqr) throws RuntimeException {
+
+        try {
+            if (!isExistPQRInfoData(pqr.getPqrInfo())) {
+                pqrInfoSevice.insertPQRInfo(pqr.getPqrInfo());
+                System.out.println("return key: " + pqr.getPqrInfo().getId());
+            } else {
+                System.out.println("이미 존재하는 PQR Info Data 입니다!");
+                pqr.getPqrInfo().setId(pqrInfoSevice.getPqrInfo(pqr.getPqrInfo()).getId());
+            }
+
+            for (WeldingParameter weldingParameter : pqr.getWeldingParameters()) {
+//                 weldingParameter.setPqrInfoId(pqr.getPqrInfo().getId());
+                if (!isExistPQRWeldingParameterData(weldingParameter)) {
+                    weldingParameterService.insertPQRWeldingParameter(weldingParameter);
+                } else {
+                    System.out.println("이미 존재하는 WeldingParameter Data 입니다!");
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("PQR Insert 오류 - PQR No: " + pqr.getPqrInfo().getPqrNo());
+            throw new RuntimeException(e);
+        }
+
+    }
 
 }

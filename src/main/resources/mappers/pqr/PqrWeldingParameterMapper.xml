@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.onj.springweldbeing.pqr.weldingparameter.WeldingParameterService">
+
+    <insert id="insertPQRWeldingParameter" parameterType="com.onj.springweldbeing.pqr.weldingparameter.WeldingParameter" useGeneratedKeys="true" keyProperty="id">
+        insert into welding_parameters
+        (
+            pqr_info_id,
+            process,
+            action,
+            bead_no,
+            electrode,
+            electrode_size,
+            amp_min,
+            amp_max,
+            volt_min,
+            volt_max,
+            speed_min,
+            speed_max,
+            heat_input_min,
+            heat_input_max,
+            other,
+            create_time,
+            create_user,
+            modify_time,
+            modify_user
+        )
+        values
+        (
+            #{pqrInfoId},
+            #{process},
+            #{action},
+            #{beadNo},
+            #{electrode},
+            #{electrodeSize},
+            #{ampMin},
+            #{ampMax},
+            #{voltMin},
+            #{voltMax},
+            #{speedMin},
+            #{speedMax},
+            #{heatInputMin},
+            #{heatInputMax},
+            #{other},
+            NOW(),
+            0,
+            NOW(),
+            0
+        )
+    </insert>
+
+    <select id="isExistPQRWeldingParameter" parameterType="com.onj.springweldbeing.pqr.weldingparameter.WeldingParameter" resultType="boolean">
+        select
+            IF(COUNT(*) = 1,1,0)
+        from
+            welding_parameters
+        where
+            bead_no=#{beadNo}
+            AND pqr_info_id=#{pqrInfoId}
+    </select>
+
+</mapper>

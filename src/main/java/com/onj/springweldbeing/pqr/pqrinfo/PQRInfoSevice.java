@@ -7,7 +7,7 @@ import java.util.List;
 @Repository
 public interface PQRInfoSevice {
 
-    List<PQRInfo> getPqrInfos();
+    PQRInfo getPqrInfo(PQRInfo pqrInfo);
 
     int insertPQRInfo(PQRInfo pqrInfo);
 
