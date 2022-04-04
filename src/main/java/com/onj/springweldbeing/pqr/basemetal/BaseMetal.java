@@ -12,7 +12,6 @@ public class BaseMetal {
     private String grNo;
     private Double thickness;
     private Double diameter;
-    private Double depositWeldMetalThickness;
     private String other;
     private String createTime;
     private int createUser;

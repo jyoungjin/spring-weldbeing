@@ -151,7 +151,8 @@ map:
     typeAndGrade:
       - grade/type_or_uns_number
       - type_and_grade
-    #  thickness TensileTestValue 에 존재
+    thickness:
+      - thickness
     diameter:
       - diameter
       - diameter_of_test_coupon

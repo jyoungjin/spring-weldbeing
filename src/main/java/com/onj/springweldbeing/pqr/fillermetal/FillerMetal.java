@@ -15,6 +15,7 @@ public class FillerMetal {
     private double sizeOfElectrode1;
     private double sizeOfElectrode2;
     private double sizeOfElectrode3;
+    private Double depositWeldMetalThickness;
     private String wireFluxClass;
     private String fluxTradeName;
     private String brandName;

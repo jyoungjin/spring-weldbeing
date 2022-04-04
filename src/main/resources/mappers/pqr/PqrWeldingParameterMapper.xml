@@ -55,8 +55,7 @@
         from
             welding_parameters
         where
-            bead_no=#{beadNo}
-            AND pqr_info_id=#{pqrInfoId}
+            pqr_info_id=#{pqrInfoId}
     </select>
 
 </mapper>

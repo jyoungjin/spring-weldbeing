@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.onj.springweldbeing.config.KeyData;
 import com.onj.springweldbeing.pqr.PQR;
+import com.onj.springweldbeing.pqr.basemetal.BaseMetal;
+import com.onj.springweldbeing.pqr.basemetal.BaseMetalService;
 import com.onj.springweldbeing.pqr.pqrinfo.PQRInfo;
 import com.onj.springweldbeing.pqr.pqrinfo.PQRInfoSevice;
 import com.onj.springweldbeing.pqr.weldingparameter.WeldingParameter;
@@ -32,20 +34,15 @@ import java.util.HashSet;
 @RestController
 @RequestMapping("/insert")
 @RequiredArgsConstructor
-public class TestCtrl {
+public class InsertCompany01Ctrl {
     private final KeyData keyData;
 
     @Autowired
     PQRInfoSevice pqrInfoSevice;
-
     @Autowired
     WeldingParameterService weldingParameterService;
-
-
-//    @GetMapping("/getPqrInfoList")
-//    public List<PQRInfo> getPqrInfoList(){
-//        return pqrInfoSevice.getPqrInfos();
-//    }
+    @Autowired
+    BaseMetalService baseMetalService;
 
     @GetMapping("/company01")
     @Transactional
@@ -96,6 +93,14 @@ public class TestCtrl {
             for (String key : keyData.pqrKey.get("weldingParameters")) {
                 if (!pqrJson.isNull(key)) {
                     pqr.setWeldingParameters(makeWeldingParameters(pqrJson.getJSONArray(key), pqr));
+                    break;
+                }
+            }
+
+            // weldingParameters 섹션 전처리
+            for (String key : keyData.pqrKey.get("baseMetals")) {
+                if (!pqrJson.isNull(key)) {
+                    pqr.setBaseMetals(makeBaseMetals(pqrJson.getJSONObject(key), pqr));
                     break;
                 }
             }
@@ -326,6 +331,65 @@ public class TestCtrl {
     }
 
 
+    // base metal 전처리
+    private ArrayList<BaseMetal> makeBaseMetals(JSONObject baseMetalsJson, PQR pqr) throws JSONException, IllegalAccessException {
+        ArrayList<BaseMetal> baseMetals = new ArrayList<>();
+
+        BaseMetal baseMetal1 = new BaseMetal();
+        BaseMetal baseMetal2 = new BaseMetal();
+
+        for (String key : keyData.pqrKey.getOrDefault("pNo", new HashSet<>())) {
+            if (!baseMetalsJson.isNull(key)) {
+                baseMetal1.setPNo(baseMetalsJson.getString(key));
+                baseMetal2.setPNo(baseMetalsJson.getString("to_"+key));
+                baseMetalsJson.remove(key);
+                baseMetalsJson.remove("to_" + key);
+            }
+        }
+
+        for (String key : keyData.pqrKey.getOrDefault("grNo", new HashSet<>())) {
+            if (!baseMetalsJson.isNull(key)) {
+                baseMetal1.setGrNo(baseMetalsJson.getString(key));
+                baseMetal2.setGrNo(baseMetalsJson.getString("to_"+key));
+                baseMetalsJson.remove(key);
+                baseMetalsJson.remove("to_" + key);
+            }
+        }
+
+        for (String key : keyData.pqrKey.getOrDefault("typeAndGrade", new HashSet<>())) {
+            if (!baseMetalsJson.isNull(key)) {
+                baseMetal1.setTypeAndGrade(baseMetalsJson.getString(key));
+                baseMetal2.setTypeAndGrade(baseMetalsJson.getString("to_"+key));
+                baseMetalsJson.remove(key);
+                baseMetalsJson.remove("to_" + key);
+            }
+        }
+
+        for (String key : keyData.pqrKey.getOrDefault("thickness", new HashSet<>())) {
+            if (!baseMetalsJson.isNull(key)) {
+                baseMetal1.setThickness(thicknessChange(baseMetalsJson.getString(key)));
+                baseMetal2.setThickness(thicknessChange(baseMetalsJson.getString("to_"+key)));
+                baseMetalsJson.remove(key);
+                baseMetalsJson.remove("to_" + key);
+            }
+        }
+
+        for (String key : keyData.pqrKey.getOrDefault("diameter", new HashSet<>())) {
+            if (!baseMetalsJson.isNull(key)) {
+                baseMetal1.setDiameter(thicknessChange(baseMetalsJson.getString(key)));
+                baseMetal2.setDiameter(thicknessChange(baseMetalsJson.getString(key)));
+                baseMetalsJson.remove(key);
+            }
+        }
+
+        baseMetals.add(baseMetal1);
+        baseMetals.add(baseMetal2);
+
+        return baseMetals;
+    }
+
+
+
     // PQR Info 데이터가 이미 존재 하는 Data 인지 확인
     private boolean isExistPQRInfoData(PQRInfo pqrInfo){
         boolean isExist = false;
@@ -348,6 +412,17 @@ public class TestCtrl {
         return isExist;
     }
 
+    // PQR BaseMetal 데이터가 이미 존재 하는 Data 인지 확인
+    private boolean isExistPQRBaseMetalData(BaseMetal baseMetal){
+        boolean isExist = false;
+
+        if(baseMetalService.isExistPQRBaseMetal(baseMetal)){
+            isExist = true;
+        };
+
+        return isExist;
+    }
+
     private Double cmminTommmin(Double x){
         return x*10;
     }
@@ -360,6 +435,26 @@ public class TestCtrl {
         return x*10;
     }
 
+    private Double thicknessChange(String str){
+
+        str = str.trim().toLowerCase().replaceAll("ø","");
+
+        if(str.equals("") || str.equals("n/a") || str.equals("none")){
+            return null;
+        }
+
+        if (str.contains("mm")) {
+            return Double.parseDouble(str.replaceAll("mm",""));
+        } else if (str.contains("cm")) {
+            return Double.parseDouble(str.replaceAll("cm","")) * 10;
+        } else if (str.contains("in")) {
+            return Double.parseDouble(str.replaceAll("in","")) * 25.4;
+        } else {
+            return Double.valueOf(str);
+        }
+
+    }
+
 
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     public void insertPQR(PQR pqr) throws RuntimeException {
@@ -369,18 +464,28 @@ public class TestCtrl {
                 pqrInfoSevice.insertPQRInfo(pqr.getPqrInfo());
                 System.out.println("return key: " + pqr.getPqrInfo().getId());
             } else {
-                System.out.println("이미 존재하는 PQR Info Data 입니다!");
+                // System.out.println("이미 존재하는 PQR Info Data 입니다!");
                 pqr.getPqrInfo().setId(pqrInfoSevice.getPqrInfo(pqr.getPqrInfo()).getId());
             }
 
             for (WeldingParameter weldingParameter : pqr.getWeldingParameters()) {
-//                 weldingParameter.setPqrInfoId(pqr.getPqrInfo().getId());
+                 weldingParameter.setPqrInfoId(pqr.getPqrInfo().getId());
                 if (!isExistPQRWeldingParameterData(weldingParameter)) {
                     weldingParameterService.insertPQRWeldingParameter(weldingParameter);
                 } else {
-                    System.out.println("이미 존재하는 WeldingParameter Data 입니다!");
+                    // System.out.println("이미 존재하는 WeldingParameter Data 입니다!");
                 }
             }
+
+            for (BaseMetal baseMetal : pqr.getBaseMetals()) {
+                baseMetal.setPqrInfoId(pqr.getPqrInfo().getId());
+                if (!isExistPQRBaseMetalData(baseMetal)) {
+                    baseMetalService.insertPQRBaseMetal(baseMetal);
+                }else{
+                    // System.out.println("이미 존재하는 BaseMetal Data 입니다!");
+                }
+            }
+
         } catch (Exception e) {
             System.out.println("PQR Insert 오류 - PQR No: " + pqr.getPqrInfo().getPqrNo());
             throw new RuntimeException(e);
