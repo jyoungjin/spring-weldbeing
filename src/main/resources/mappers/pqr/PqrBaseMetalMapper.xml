@@ -35,13 +35,4 @@
         )
     </insert>
 
-    <select id="isExistPQRBaseMetal" parameterType="com.onj.springweldbeing.pqr.basemetal.BaseMetal" resultType="boolean">
-        select
-            IF(COUNT(*) = 1,1,0)
-        from
-            base_metal
-        where
-            pqr_info_id=#{pqrInfoId}
-    </select>
-
 </mapper>

@@ -8,7 +8,7 @@ public class PostWeldHeatTreatment {
     private int pqrInfoId;
     private double temperatureMin;
     private double temperatureMax;
-    private int holdingTime;
+    private String holdingTime;
     private String other;
     private String createTime;
     private int createUser;

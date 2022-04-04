@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.onj.springweldbeing.pqr.preheat.PreheatService">
+
+    <insert id="insertPQRPreheat" parameterType="com.onj.springweldbeing.pqr.preheat.Preheat" useGeneratedKeys="true" keyProperty="id">
+        insert into preheat
+        (
+            pqr_info_id,
+            preheat_temp_min,
+            preheat_temp_max,
+            interpass_temp_min,
+            interpass_temp_max,
+            other,
+            create_time,
+            create_user,
+            modify_time,
+            modify_user
+        )
+        values
+        (
+            #{pqrInfoId},
+            #{preheatTempMin},
+            #{preheatTempMax},
+            #{interpassTempMin},
+            #{interpassTempMax},
+            #{other},
+            NOW(),
+            0,
+            NOW(),
+            0
+        )
+    </insert>
+
+</mapper>

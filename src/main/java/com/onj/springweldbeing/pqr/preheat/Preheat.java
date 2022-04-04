@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class Preheat {
     private int id;
+    private int pqrInfoId;
     private double preheatTempMin;
     private double preheatTempMax;
     private double interpassTempMin;

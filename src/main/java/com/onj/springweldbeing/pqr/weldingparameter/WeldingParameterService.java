@@ -7,6 +7,5 @@ import org.springframework.stereotype.Repository;
 public interface WeldingParameterService {
 
     int insertPQRWeldingParameter(WeldingParameter weldingParameter);
-    boolean isExistPQRWeldingParameter(WeldingParameter weldingParameter);
 
 }

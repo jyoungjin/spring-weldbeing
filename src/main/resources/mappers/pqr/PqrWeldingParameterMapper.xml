@@ -49,13 +49,4 @@
         )
     </insert>
 
-    <select id="isExistPQRWeldingParameter" parameterType="com.onj.springweldbeing.pqr.weldingparameter.WeldingParameter" resultType="boolean">
-        select
-            IF(COUNT(*) = 1,1,0)
-        from
-            welding_parameters
-        where
-            pqr_info_id=#{pqrInfoId}
-    </select>
-
 </mapper>

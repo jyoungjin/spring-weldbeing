@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.onj.springweldbeing.pqr.position.PositionService">
+
+    <insert id="insertPQRPosition" parameterType="com.onj.springweldbeing.pqr.position.Position" useGeneratedKeys="true" keyProperty="id">
+        insert into position
+        (
+            pqr_info_id,
+            process,
+            position_of_groove,
+            progression,
+            other,
+            create_time,
+            create_user,
+            modify_time,
+            modify_user
+        )
+        values
+        (
+            #{pqrInfoId},
+            #{process},
+            #{positionOfGroove},
+            #{progression},
+            #{other},
+            NOW(),
+            0,
+            NOW(),
+            0
+        )
+    </insert>
+
+</mapper>

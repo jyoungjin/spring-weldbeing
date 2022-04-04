@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.onj.springweldbeing.pqr.electricalcharacteristic.ElectricalCharacteristicService">
+
+    <insert id="insertPQRElectricalCharacteristic" parameterType="com.onj.springweldbeing.pqr.electricalcharacteristic.ElectricalCharacteristic" useGeneratedKeys="true" keyProperty="id">
+        insert into electrical_characteristics
+        (
+            pqr_info_id,
+            process,
+            current,
+            polarity,
+            transfer_mode,
+            tungsten_electrode_type,
+            tungsten_electrode_size1,
+            tungsten_electrode_size2,
+            tungsten_electrode_size3,
+            other,
+            create_time,
+            create_user,
+            modify_time,
+            modify_user
+        )
+        values
+        (
+            #{pqrInfoId},
+            #{process},
+            #{current},
+            #{polarity},
+            #{transferMode},
+            #{tungstenElectrodeType},
+            #{tungstenElectrodeSize1},
+            #{tungstenElectrodeSize2},
+            #{tungstenElectrodeSize3},
+            #{other},
+            NOW(),
+            0,
+            NOW(),
+            0
+        )
+    </insert>
+
+</mapper>

@@ -7,6 +7,5 @@ import org.springframework.stereotype.Repository;
 public interface BaseMetalService {
 
     int insertPQRBaseMetal(BaseMetal baseMetal);
-    boolean isExistPQRBaseMetal(BaseMetal baseMetal);
 
 }

@@ -6,8 +6,16 @@ import com.onj.springweldbeing.config.KeyData;
 import com.onj.springweldbeing.pqr.PQR;
 import com.onj.springweldbeing.pqr.basemetal.BaseMetal;
 import com.onj.springweldbeing.pqr.basemetal.BaseMetalService;
+import com.onj.springweldbeing.pqr.fillermetal.FillerMetal;
+import com.onj.springweldbeing.pqr.fillermetal.FillerMetalService;
+import com.onj.springweldbeing.pqr.position.Position;
+import com.onj.springweldbeing.pqr.position.PositionService;
+import com.onj.springweldbeing.pqr.postweldheattreatment.PostWeldHeatTreatment;
+import com.onj.springweldbeing.pqr.postweldheattreatment.PostWeldHeatTreatmentService;
 import com.onj.springweldbeing.pqr.pqrinfo.PQRInfo;
 import com.onj.springweldbeing.pqr.pqrinfo.PQRInfoSevice;
+import com.onj.springweldbeing.pqr.preheat.Preheat;
+import com.onj.springweldbeing.pqr.preheat.PreheatService;
 import com.onj.springweldbeing.pqr.weldingparameter.WeldingParameter;
 import com.onj.springweldbeing.pqr.weldingparameter.WeldingParameterService;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +51,14 @@ public class InsertCompany01Ctrl {
     WeldingParameterService weldingParameterService;
     @Autowired
     BaseMetalService baseMetalService;
+    @Autowired
+    FillerMetalService fillerMetalService;
+    @Autowired
+    PositionService positionService;
+    @Autowired
+    PreheatService preheatService;
+    @Autowired
+    PostWeldHeatTreatmentService postWeldHeatTreatmentService;
 
     @GetMapping("/company01")
     @Transactional
@@ -97,10 +113,42 @@ public class InsertCompany01Ctrl {
                 }
             }
 
-            // weldingParameters 섹션 전처리
+            // baseMetals 섹션 전처리
             for (String key : keyData.pqrKey.get("baseMetals")) {
                 if (!pqrJson.isNull(key)) {
                     pqr.setBaseMetals(makeBaseMetals(pqrJson.getJSONObject(key), pqr));
+                    break;
+                }
+            }
+
+            // fillerMetals 섹션 전처리
+            for (String key : keyData.pqrKey.get("fillerMetals")) {
+                if (!pqrJson.isNull(key)) {
+                    pqr.setFillerMetals(makeFillerMetals(pqrJson.getJSONObject(key), weldingProcesses, pqr));
+                    break;
+                }
+            }
+
+            // positions 섹션 전처리
+            for (String key : keyData.pqrKey.get("positions")) {
+                if (!pqrJson.isNull(key)) {
+                    pqr.setPositions(makePositions(pqrJson.getJSONObject(key), weldingProcesses, pqr));
+                    break;
+                }
+            }
+
+            // preheat 섹션 전처리
+            for (String key : keyData.pqrKey.get("preheats")) {
+                if (!pqrJson.isNull(key)) {
+                    pqr.setPreheats(makePreheats(pqrJson.getJSONObject(key), weldingProcesses, pqr));
+                    break;
+                }
+            }
+
+            // postWeldHeatTreatments 섹션 전처리
+            for (String key : keyData.pqrKey.get("postWeldHeatTreatments")) {
+                if (!pqrJson.isNull(key)) {
+                    pqr.setPostWeldHeatTreatments(makePostWeldHeatTreatments(pqrJson.getJSONObject(key), weldingProcesses, pqr));
                     break;
                 }
             }
@@ -382,13 +430,286 @@ public class InsertCompany01Ctrl {
             }
         }
 
+        baseMetal1.setOther(baseMetalsJson.toString());
+        baseMetal2.setOther(baseMetalsJson.toString());
+
         baseMetals.add(baseMetal1);
         baseMetals.add(baseMetal2);
 
         return baseMetals;
     }
 
+    // filler metal 전처리
+    private ArrayList<FillerMetal> makeFillerMetals(JSONObject fillerMetalsJson, ArrayList<String> weldingProcesses, PQR pqr) throws JSONException, IllegalAccessException {
+        ArrayList<FillerMetal> fillerMetals = new ArrayList<>();
 
+        for (String process : weldingProcesses) {
+
+            FillerMetal fillerMetal = new FillerMetal();
+            fillerMetal.setProcess(process);
+
+            for (String key : keyData.pqrKey.getOrDefault("sfaNo", new HashSet<>())) {
+                if (!fillerMetalsJson.isNull(key)) {
+                    try {
+                        fillerMetalsJson.getJSONObject(key);
+                        fillerMetal.setSfaNo(fillerMetalsJson.getJSONObject(key).getString(process));
+                        fillerMetalsJson.getJSONObject(key).remove(process);
+                    } catch (JSONException e) {
+                        fillerMetal.setSfaNo(fillerMetalsJson.getString(key));
+                    }
+                }
+            }
+
+            for (String key : keyData.pqrKey.getOrDefault("awsClass", new HashSet<>())) {
+                if (!fillerMetalsJson.isNull(key)) {
+                    try {
+                        fillerMetalsJson.getJSONObject(key);
+                        fillerMetal.setAwsClass(fillerMetalsJson.getJSONObject(key).getString(process));
+                        fillerMetalsJson.getJSONObject(key).remove(process);
+                    } catch (JSONException e) {
+                        fillerMetal.setAwsClass(fillerMetalsJson.getString(key));
+                    }
+                }
+            }
+            for (String key : keyData.pqrKey.getOrDefault("fNo", new HashSet<>())) {
+                if (!fillerMetalsJson.isNull(key)) {
+                    try {
+                        fillerMetalsJson.getJSONObject(key);
+                        fillerMetal.setFNo(fillerMetalsJson.getJSONObject(key).getString(process));
+                        fillerMetalsJson.getJSONObject(key).remove(process);
+                    } catch (JSONException e) {
+                        fillerMetal.setFNo(fillerMetalsJson.getString(key));
+                    }
+                }
+            }
+            for (String key : keyData.pqrKey.getOrDefault("aNo", new HashSet<>())) {
+                if (!fillerMetalsJson.isNull(key)) {
+                    try {
+                        fillerMetalsJson.getJSONObject(key);
+                        fillerMetal.setANo(fillerMetalsJson.getJSONObject(key).getString(process));
+                        fillerMetalsJson.getJSONObject(key).remove(process);
+                    } catch (JSONException e) {
+                        fillerMetal.setANo(fillerMetalsJson.getString(key));
+                    }
+                }
+            }
+            for (String key : keyData.pqrKey.getOrDefault("fillerProductForm", new HashSet<>())) {
+                if (!fillerMetalsJson.isNull(key)) {
+                    try {
+                        fillerMetalsJson.getJSONObject(key);
+                        fillerMetal.setFillerProductForm(fillerMetalsJson.getJSONObject(key).getString(process));
+                        fillerMetalsJson.getJSONObject(key).remove(process);
+                    } catch (JSONException e) {
+                        fillerMetal.setFillerProductForm(fillerMetalsJson.getString(key));
+                    }
+                }
+            }
+            for (String key : keyData.pqrKey.getOrDefault("sizeOfElectrode", new HashSet<>())) {
+                if (!fillerMetalsJson.isNull(key)) {
+                    try {
+                        fillerMetalsJson.getJSONObject(key);
+                        fillerMetal.setSizeOfElectrode1(thicknessChange(fillerMetalsJson.getJSONObject(key).getString(process)));
+                        fillerMetalsJson.getJSONObject(key).remove(process);
+                    } catch (JSONException e) {
+                        fillerMetal.setSizeOfElectrode1(thicknessChange(fillerMetalsJson.getString(key)));
+                    }
+                }
+            }
+            for (String key : keyData.pqrKey.getOrDefault("depositWeldMetalThickness", new HashSet<>())) {
+                if (!fillerMetalsJson.isNull(key)) {
+                    try {
+                        fillerMetalsJson.getJSONObject(key);
+                        fillerMetal.setDepositWeldMetalThickness(thicknessChange(fillerMetalsJson.getJSONObject(key).getString(process)));
+                        fillerMetalsJson.getJSONObject(key).remove(process);
+                    } catch (JSONException e) {
+                        fillerMetal.setDepositWeldMetalThickness(thicknessChange(fillerMetalsJson.getString(key)));
+                    }
+                }
+            }
+            for (String key : keyData.pqrKey.getOrDefault("wireFluxClass", new HashSet<>())) {
+                if (!fillerMetalsJson.isNull(key)) {
+                    try {
+                        fillerMetalsJson.getJSONObject(key);
+                        fillerMetal.setWireFluxClass(fillerMetalsJson.getJSONObject(key).getString(process));
+                        fillerMetalsJson.getJSONObject(key).remove(process);
+                    } catch (JSONException e) {
+                        fillerMetal.setWireFluxClass(fillerMetalsJson.getString(key));
+                    }
+                }
+            }
+            for (String key : keyData.pqrKey.getOrDefault("supplemental", new HashSet<>())) {
+                if (!fillerMetalsJson.isNull(key)) {
+                    try {
+                        fillerMetalsJson.getJSONObject(key);
+                        fillerMetal.setSupplemental(fillerMetalsJson.getJSONObject(key).getString(process));
+                        fillerMetalsJson.getJSONObject(key).remove(process);
+                    } catch (JSONException e) {
+                        fillerMetal.setSupplemental(fillerMetalsJson.getString(key));
+                    }
+                }
+            }
+            for (String key : keyData.pqrKey.getOrDefault("alloyElements", new HashSet<>())) {
+                if (!fillerMetalsJson.isNull(key)) {
+                    try {
+                        fillerMetalsJson.getJSONObject(key);
+                        fillerMetal.setAlloyElements(fillerMetalsJson.getJSONObject(key).getString(process));
+                        fillerMetalsJson.getJSONObject(key).remove(process);
+                    } catch (JSONException e) {
+                        fillerMetal.setAlloyElements(fillerMetalsJson.getString(key));
+                    }
+                }
+            }
+            fillerMetal.setOther(fillerMetalsJson.toString());
+            fillerMetals.add(fillerMetal);
+        }
+
+        return fillerMetals;
+    }
+
+    // position 전처리
+    private ArrayList<Position> makePositions(JSONObject positionsJson, ArrayList<String> weldingProcesses, PQR pqr) throws JSONException, IllegalAccessException {
+        ArrayList<Position> positions = new ArrayList<>();
+
+        for (String process : weldingProcesses) {
+
+            Position position = new Position();
+
+            for (String key : keyData.pqrKey.getOrDefault("positionOfGroove", new HashSet<>())) {
+                if (!positionsJson.isNull(key)) {
+                    try {
+                        positionsJson.getJSONObject(key);
+                        position.setPositionOfGroove(positionsJson.getJSONObject(key).getString(process));
+                        positionsJson.getJSONObject(key).remove(process);
+                    } catch (JSONException e) {
+                        position.setPositionOfGroove(positionsJson.getString(key));
+                    }
+                }
+            }
+
+            for (String key : keyData.pqrKey.getOrDefault("progression", new HashSet<>())) {
+                if (!positionsJson.isNull(key)) {
+                    try {
+                        positionsJson.getJSONObject(key);
+                        position.setProgression(positionsJson.getJSONObject(key).getString(process));
+                        positionsJson.getJSONObject(key).remove(process);
+                    } catch (JSONException e) {
+                        position.setProgression(positionsJson.getString(key));
+                    }
+                }
+            }
+
+            position.setOther(positionsJson.toString());
+            positions.add(position);
+
+        }
+        return positions;
+    }
+
+    // preheat 전처리
+    private ArrayList<Preheat> makePreheats(JSONObject preheatJson, ArrayList<String> weldingProcesses, PQR pqr) throws JSONException, IllegalAccessException {
+        ArrayList<Preheat> preheats = new ArrayList<>();
+
+        Preheat preheat = new Preheat();
+
+        for (String key : keyData.pqrKey.getOrDefault("preheatTemp", new HashSet<>())) {
+            if (!preheatJson.isNull(key)) {
+                String str = preheatJson.getString(key).trim().replaceAll("°C","");
+                if (isNone(str)) {
+                    preheatJson.remove(key);
+                    break;
+                }
+                double preheatTempMin;
+                double preheatTempMax;
+                if (str.contains("~")) {
+                    preheatTempMin = Double.parseDouble(str.split("~")[0]);
+                    preheatTempMax = Double.parseDouble(str.split("~")[1]);
+                }else{
+                    preheatTempMin = Double.parseDouble(str);
+                    preheatTempMax = Double.parseDouble(str);
+                }
+
+                preheat.setPreheatTempMin(preheatTempMin);
+                preheat.setPreheatTempMax(preheatTempMax);
+
+                preheatJson.remove(key);
+            }
+
+        }
+
+        for (String key : keyData.pqrKey.getOrDefault("interPassTemp", new HashSet<>())) {
+            if (!preheatJson.isNull(key)) {
+                String str = preheatJson.getString(key).trim().replaceAll("°C","");
+                if (isNone(str)) {
+                    preheatJson.remove(key);
+                    break;
+                }
+                double interpassTempMin;
+                double interpassTempMax;
+                if (str.contains("~")) {
+                    interpassTempMin = Double.parseDouble(str.split("~")[0]);
+                    interpassTempMax = Double.parseDouble(str.split("~")[1]);
+                }else{
+                    interpassTempMin = Double.parseDouble(str);
+                    interpassTempMax = Double.parseDouble(str);
+                }
+                preheat.setInterpassTempMin(interpassTempMin);
+                preheat.setInterpassTempMax(interpassTempMax);
+
+                preheatJson.remove(key);
+            }
+        }
+
+        preheat.setOther(preheatJson.toString());
+        preheats.add(preheat);
+
+        return preheats;
+    }
+
+    // postWeldHeatTreatment 전처리
+    private ArrayList<PostWeldHeatTreatment> makePostWeldHeatTreatments(JSONObject postWeldHeatTreatmentJson, ArrayList<String> weldingProcesses, PQR pqr) throws JSONException, IllegalAccessException {
+        ArrayList<PostWeldHeatTreatment> postWeldHeatTreatments = new ArrayList<>();
+
+        PostWeldHeatTreatment postWeldHeatTreatment = new PostWeldHeatTreatment();
+
+        for (String key : keyData.pqrKey.getOrDefault("temperature", new HashSet<>())) {
+            if (!postWeldHeatTreatmentJson.isNull(key)) {
+                String str = postWeldHeatTreatmentJson.getString(key).trim().replaceAll("°C","");
+                if (isNone(str)) {
+                    postWeldHeatTreatmentJson.remove(key);
+                    break;
+                }
+                double temperatureMin;
+                double temperatureMax;
+                if (str.contains("~")) {
+                    temperatureMin = Double.parseDouble(str.split("~")[0]);
+                    temperatureMax = Double.parseDouble(str.split("~")[1]);
+                }else{
+                    temperatureMin = Double.parseDouble(str);
+                    temperatureMax = Double.parseDouble(str);
+                }
+
+                postWeldHeatTreatment.setTemperatureMin(temperatureMin);
+                postWeldHeatTreatment.setTemperatureMax(temperatureMax);
+
+                postWeldHeatTreatmentJson.remove(key);
+            }
+
+        }
+
+        for (String key : keyData.pqrKey.getOrDefault("holdingTime", new HashSet<>())) {
+
+            if (!postWeldHeatTreatmentJson.isNull(key)) {
+
+                postWeldHeatTreatment.setHoldingTime(postWeldHeatTreatmentJson.getString(key).trim());
+                postWeldHeatTreatmentJson.remove(key);
+            }
+        }
+
+        postWeldHeatTreatment.setOther(postWeldHeatTreatmentJson.toString());
+        postWeldHeatTreatments.add(postWeldHeatTreatment);
+
+        return postWeldHeatTreatments;
+    }
 
     // PQR Info 데이터가 이미 존재 하는 Data 인지 확인
     private boolean isExistPQRInfoData(PQRInfo pqrInfo){
@@ -396,28 +717,6 @@ public class InsertCompany01Ctrl {
 
         if(pqrInfoSevice.isExistPQR(pqrInfo)){
            isExist = true;
-        };
-
-        return isExist;
-    }
-
-    // PQR WeldingParameter 데이터가 이미 존재 하는 Data 인지 확인
-    private boolean isExistPQRWeldingParameterData(WeldingParameter weldingParameter){
-        boolean isExist = false;
-
-        if(weldingParameterService.isExistPQRWeldingParameter(weldingParameter)){
-            isExist = true;
-        };
-
-        return isExist;
-    }
-
-    // PQR BaseMetal 데이터가 이미 존재 하는 Data 인지 확인
-    private boolean isExistPQRBaseMetalData(BaseMetal baseMetal){
-        boolean isExist = false;
-
-        if(baseMetalService.isExistPQRBaseMetal(baseMetal)){
-            isExist = true;
         };
 
         return isExist;
@@ -439,7 +738,7 @@ public class InsertCompany01Ctrl {
 
         str = str.trim().toLowerCase().replaceAll("ø","");
 
-        if(str.equals("") || str.equals("n/a") || str.equals("none")){
+        if (str.equals("") || str.equals("-") || str.equals("n/a") || str.equals("none")) {
             return null;
         }
 
@@ -455,35 +754,54 @@ public class InsertCompany01Ctrl {
 
     }
 
+    private boolean isNone(String str){
+        str = str.toLowerCase();
+        if (str.equals("") || str.equals("-") || str.equals("n/a") || str.equals("none")) {
+            return true;
+        }
+        return false;
+    }
 
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     public void insertPQR(PQR pqr) throws RuntimeException {
 
         try {
+            // 이미 입력된 PQR 데이터인지 확인
             if (!isExistPQRInfoData(pqr.getPqrInfo())) {
                 pqrInfoSevice.insertPQRInfo(pqr.getPqrInfo());
-                System.out.println("return key: " + pqr.getPqrInfo().getId());
+                System.out.print("return key: " + pqr.getPqrInfo().getId()+", ");
             } else {
-                // System.out.println("이미 존재하는 PQR Info Data 입니다!");
                 pqr.getPqrInfo().setId(pqrInfoSevice.getPqrInfo(pqr.getPqrInfo()).getId());
             }
 
             for (WeldingParameter weldingParameter : pqr.getWeldingParameters()) {
                  weldingParameter.setPqrInfoId(pqr.getPqrInfo().getId());
-                if (!isExistPQRWeldingParameterData(weldingParameter)) {
-                    weldingParameterService.insertPQRWeldingParameter(weldingParameter);
-                } else {
-                    // System.out.println("이미 존재하는 WeldingParameter Data 입니다!");
-                }
+                 weldingParameterService.insertPQRWeldingParameter(weldingParameter);
             }
 
             for (BaseMetal baseMetal : pqr.getBaseMetals()) {
                 baseMetal.setPqrInfoId(pqr.getPqrInfo().getId());
-                if (!isExistPQRBaseMetalData(baseMetal)) {
-                    baseMetalService.insertPQRBaseMetal(baseMetal);
-                }else{
-                    // System.out.println("이미 존재하는 BaseMetal Data 입니다!");
-                }
+                baseMetalService.insertPQRBaseMetal(baseMetal);
+            }
+
+            for (FillerMetal fillerMetal : pqr.getFillerMetals()) {
+                fillerMetal.setPqrInfoId(pqr.getPqrInfo().getId());
+                fillerMetalService.insertPQRFillerMetal(fillerMetal);
+            }
+
+            for (Position position : pqr.getPositions()) {
+                position.setPqrInfoId(pqr.getPqrInfo().getId());
+                positionService.insertPQRPosition(position);
+            }
+
+            for (Preheat preheat : pqr.getPreheats()) {
+                preheat.setPqrInfoId(pqr.getPqrInfo().getId());
+                preheatService.insertPQRPreheat(preheat);
+            }
+
+            for (PostWeldHeatTreatment postWeldHeatTreatment : pqr.getPostWeldHeatTreatments()) {
+                postWeldHeatTreatment.setPqrInfoId(pqr.getPqrInfo().getId());
+                postWeldHeatTreatmentService.insertPQRPostWeldHeatTreatment(postWeldHeatTreatment);
             }
 
         } catch (Exception e) {

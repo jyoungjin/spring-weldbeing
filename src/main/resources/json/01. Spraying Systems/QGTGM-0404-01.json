@@ -139,8 +139,8 @@
     "to_thickness": "22mm",
     "diameter": "N/A",
     "deposit_weld_metal_thickness": {
-      "GT": "6mm",
-      "GM": "16mm"
+      "GTAW": "6mm",
+      "GMAW": "16mm"
     }
   },
   "filler_metals": {
@@ -150,22 +150,22 @@
     "a_no": "-",
     "filler_product_form": "Solid",
     "size_of_electrode": {
-      "GT": "2.4mm",
-      "GM": "1.2mm"
+      "GTAW": "2.4mm",
+      "GMAW": "1.2mm"
     },
     "wire_flux_class": "N/A",
     "flux_trade_name": "N/A",
     "others": {
-      "GT": "TG-S80B2",
-      "GM": "MG-S1CM"
+      "GTAW": "TG-S80B2",
+      "GMAW": "MG-S1CM"
     },
     "supplemental": {
-      "GT": "N/A",
-      "GM": "None"
+      "GTAW": "N/A",
+      "GMAW": "None"
     },
     "alloy_elements": {
-      "GT": "N/A",
-      "GM": "None"
+      "GTAW": "N/A",
+      "GMAW": "None"
     }
   },
   "position": {
@@ -186,15 +186,15 @@
   "gas": {
     "shielding_gas": {
       "gas": {
-        "GT": "Ar",
-        "GM": "Ar+CO2"
+        "GTAW": "Ar",
+        "GMAW": "Ar+CO2"
       },
       "percent_composition": {
-        "GT": "Single",
+        "GTAW": "Single",
         "GM:": "Ar: 80%, CO2: 20%"
       },
       "flow": {
-        "GT": "17L/min",
+        "GTAW": "17L/min",
         "GM:": "17L/min"
       }
     },
@@ -213,20 +213,20 @@
   "electrical_characterisitics": {
     "current": "DC",
     "polarity": {
-      "GT": "EN",
-      "GM": "EP"
+      "GTAW": "EN",
+      "GMAW": "EP"
     },
     "transfer_mode": {
-      "GT": "N/A",
-      "GM": "Globular, Spray"
+      "GTAW": "N/A",
+      "GMAW": "Globular, Spray"
     },
     "tungsten_electrode_type": {
-      "GT": "EWTH-2",
-      "GM": "N/A"
+      "GTAW": "EWTH-2",
+      "GMAW": "N/A"
     },
     "tungsten_electrode_size": {
-      "GT": "2.4mm",
-      "GM": "N/A"
+      "GTAW": "2.4mm",
+      "GMAW": "N/A"
     },
     "others": "None"
   },
@@ -236,8 +236,8 @@
     "multipass_or_singlepass": "Multi",
     "single_or_multiple_electrodes": "Single",
     "closed_to_out_chamber": {
-      "GT": "None",
-      "GM": "N/A"
+      "GTAW": "None",
+      "GMAW": "N/A"
     },
     "use_of_thermal_process": "None",
     "others": "None"

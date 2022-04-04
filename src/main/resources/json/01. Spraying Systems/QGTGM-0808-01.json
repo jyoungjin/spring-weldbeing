@@ -129,8 +129,8 @@
     "to_thickness": "25mm",
     "diameter": "N/A",
     "deposit_weld_metal_thickness": {
-      "GT": "5mm",
-      "GM": "20mm"
+      "GTAW": "5mm",
+      "GMAW": "20mm"
     }
   },
   "filler_metals": {
@@ -140,14 +140,14 @@
     "a_no": "-",
     "filler_product_form": "Solid",
     "size_of_electrode": {
-      "GT": "2.4mm",
-      "GM": "1.2mm"
+      "GTAW": "2.4mm",
+      "GMAW": "1.2mm"
     },
     "wire_flux_class": "N/A",
     "flux_trade_name": "N/A",
     "others": {
-      "GT": "TGC-347",
-      "GM": "MGC-347"
+      "GTAW": "TGC-347",
+      "GMAW": "MGC-347"
     },
     "supplemental": "N/A",
     "alloy_elements": "N/A"
@@ -175,15 +175,15 @@
     },
     "gas_backing": {
       "gas": {
-        "GT": "Ar",
-        "GM": "None"
+        "GTAW": "Ar",
+        "GMAW": "None"
       },
       "percent_composition": {
-        "GT": "Single",
+        "GTAW": "Single",
         "GM:": "None"
       },
       "flow": {
-        "GT": "15L/min",
+        "GTAW": "15L/min",
         "GM:": "None"
       }
     },
@@ -197,20 +197,20 @@
   "electrical_characterisitics": {
     "current": "DC",
     "polarity": {
-      "GT": "EN",
-      "GM": "EP"
+      "GTAW": "EN",
+      "GMAW": "EP"
     },
     "transfer_mode": {
-      "GT": "N/A",
-      "GM": "Globular, Spray"
+      "GTAW": "N/A",
+      "GMAW": "Globular, Spray"
     },
     "tungsten_electrode_type": {
-      "GT": "EWTH-2",
-      "GM": "N/A"
+      "GTAW": "EWTH-2",
+      "GMAW": "N/A"
     },
     "tungsten_electrode_size": {
-      "GT": "2.4mm",
-      "GM": "N/A"
+      "GTAW": "2.4mm",
+      "GMAW": "N/A"
     },
     "others": "None"
   },
@@ -221,8 +221,8 @@
     "single_or_multiple_electrodes": "Single",
     "closed_to_out_chamber": "None",
     "use_of_thermal_process": {
-      "GT": "None",
-      "GM": "N/A"
+      "GTAW": "None",
+      "GMAW": "N/A"
     },
     "others": "None"
   },
