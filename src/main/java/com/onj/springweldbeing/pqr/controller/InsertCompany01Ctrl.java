@@ -12,6 +12,8 @@ import com.onj.springweldbeing.pqr.fillermetal.FillerMetal;
 import com.onj.springweldbeing.pqr.fillermetal.FillerMetalService;
 import com.onj.springweldbeing.pqr.gas.Gas;
 import com.onj.springweldbeing.pqr.gas.GasService;
+import com.onj.springweldbeing.pqr.jointdesign.JointDesign;
+import com.onj.springweldbeing.pqr.jointdesign.JointDesignService;
 import com.onj.springweldbeing.pqr.position.Position;
 import com.onj.springweldbeing.pqr.position.PositionService;
 import com.onj.springweldbeing.pqr.postweldheattreatment.PostWeldHeatTreatment;
@@ -56,6 +58,8 @@ public class InsertCompany01Ctrl {
     @Autowired
     PQRInfoSevice pqrInfoSevice;
     @Autowired
+    JointDesignService jointDesignService;
+    @Autowired
     WeldingParameterService weldingParameterService;
     @Autowired
     BaseMetalService baseMetalService;
@@ -80,7 +84,7 @@ public class InsertCompany01Ctrl {
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-        String pattern =  "json/01. Spraying Systems/*.json";
+        String pattern =  "json/02. S & T/*.json";
 
         ArrayList<PQR> pqrList = new ArrayList<>();
 
@@ -118,6 +122,14 @@ public class InsertCompany01Ctrl {
             }
             if(pqr.getPqrInfo().getWeldingProcess3() != null){
                 weldingProcesses.add(pqr.getPqrInfo().getWeldingProcess3());
+            }
+
+            // joint design 섹션 전처리
+            for (String key : keyData.pqrKey.get("jointDesign")) {
+                if (!pqrJson.isNull(key)) {
+                    pqr.setJointDesign(makeJointDesign(pqrJson.getJSONObject(key), pqr));
+                    break;
+                }
             }
 
             // weldingParameters 섹션 전처리
@@ -268,6 +280,80 @@ public class InsertCompany01Ctrl {
         }
 
         return pqrInfo;
+    }
+
+    // base metal 전처리
+    private JointDesign makeJointDesign(JSONObject jointDesignJson, PQR pqr) throws JSONException, IllegalAccessException {
+        JointDesign jointDesign = new JointDesign();
+
+        for (String key : keyData.pqrKey.getOrDefault("rootFace", new HashSet<>())) {
+            if (!jointDesignJson.isNull(key)) {
+                String rootFace = jointDesignJson.getString(key).trim().replaceAll("mm","");
+                Double rootFaceMin;
+                Double rootFaceMax;
+                if(!rootFace.isEmpty()){
+                    if(rootFace.contains("~")){
+                        String[] ampsArr = rootFace.split("~");
+                        rootFaceMin = Double.valueOf(ampsArr[0]);
+                        rootFaceMax = Double.valueOf(ampsArr[1]);
+                    }else{
+                        rootFaceMin = Double.valueOf(rootFace);
+                        rootFaceMax = Double.valueOf(rootFace);
+                    }
+                    jointDesign.setRootFaceMin(rootFaceMin);
+                    jointDesign.setRootFaceMax(rootFaceMax);
+                    jointDesignJson.remove(key);
+                }
+            }
+        }
+
+        for (String key : keyData.pqrKey.getOrDefault("rootOpening", new HashSet<>())) {
+            if (!jointDesignJson.isNull(key)) {
+                String rootOpening = jointDesignJson.getString(key).trim().replaceAll("mm","");
+                Double rootOpeningMin;
+                Double rootOpeningMax;
+                if(!rootOpening.isEmpty()) {
+                    if (rootOpening.contains("~")) {
+                        String[] ampsArr = rootOpening.split("~");
+                        rootOpeningMin = Double.valueOf(ampsArr[0]);
+                        rootOpeningMax = Double.valueOf(ampsArr[1]);
+                    } else {
+                        rootOpeningMin = Double.valueOf(rootOpening);
+                        rootOpeningMax = Double.valueOf(rootOpening);
+                    }
+                    jointDesign.setRootOpeningMin(rootOpeningMin);
+                    jointDesign.setRootOpeningMax(rootOpeningMax);
+                    jointDesignJson.remove(key);
+                }
+            }
+        }
+
+        for (String key : keyData.pqrKey.getOrDefault("grooveAngle", new HashSet<>())) {
+            if (!jointDesignJson.isNull(key)) {
+                String grooveAngle = jointDesignJson.getString(key).trim().replaceAll("°","");
+                Double grooveAngleMin;
+                Double grooveAngleMax;
+                if(!grooveAngle.isEmpty()) {
+                    if (grooveAngle.contains("~")) {
+                        String[] ampsArr = grooveAngle.split("~");
+                        grooveAngleMin = Double.valueOf(ampsArr[0]);
+                        grooveAngleMax = Double.valueOf(ampsArr[1]);
+                    } else {
+                        grooveAngleMin = Double.valueOf(grooveAngle);
+                        grooveAngleMax = Double.valueOf(grooveAngle);
+                    }
+                    jointDesign.setGrooveAngleMin(grooveAngleMin);
+                    jointDesign.setGrooveAngleMax(grooveAngleMax);
+                    jointDesignJson.remove(key);
+                }
+            }
+        }
+
+        if(!jointDesignJson.toString().trim().equals("{}")){
+            jointDesign.setOther(jointDesignJson.toString());
+        }
+
+        return jointDesign;
     }
 
     // weldingParameter data 전처리
@@ -439,6 +525,15 @@ public class InsertCompany01Ctrl {
             if (!baseMetalsJson.isNull(key)) {
                 baseMetal1.setGrNo(baseMetalsJson.getString(key).trim());
                 baseMetal2.setGrNo(baseMetalsJson.getString("to_"+key).trim());
+                baseMetalsJson.remove(key);
+                baseMetalsJson.remove("to_" + key);
+            }
+        }
+
+        for (String key : keyData.pqrKey.getOrDefault("materialSpec", new HashSet<>())) {
+            if (!baseMetalsJson.isNull(key)) {
+                baseMetal1.setMaterialSpec(baseMetalsJson.getString(key).trim());
+                baseMetal2.setMaterialSpec(baseMetalsJson.getString("to_"+key).trim());
                 baseMetalsJson.remove(key);
                 baseMetalsJson.remove("to_" + key);
             }
@@ -654,6 +749,7 @@ public class InsertCompany01Ctrl {
         for (String key : keyData.pqrKey.getOrDefault("interPassTemp", new HashSet<>())) {
             if (!preheatJson.isNull(key)) {
                 String str = preheatJson.getString(key).trim().replaceAll("°C","");
+                str = str.toLowerCase().replaceAll("max.","").trim();
                 if (isEmpty(str)) {
                     preheatJson.remove(key);
                     break;
@@ -720,6 +816,7 @@ public class InsertCompany01Ctrl {
             }
         }
 
+        postWeldHeatTreatment.setCycle(1);
         postWeldHeatTreatment.setOther(postWeldHeatTreatmentJson.toString());
         postWeldHeatTreatments.add(postWeldHeatTreatment);
 
@@ -888,16 +985,19 @@ public class InsertCompany01Ctrl {
                 if (!electricalCharacteristicJson.isNull(key)) {
                     checkedKey.add(key);
 
-                    String[] str = getByProcess(electricalCharacteristicJson, process, key).toLowerCase().replaceAll("ø", "").split(",");
-                    for (int i = 0; i < str.length; i++) {
-                        if (i == 0) {
-                            electricalCharacteristic.setTungstenElectrodeSize1(thicknessChange(str[i]));
-                        }else if (i == 1) {
-                            electricalCharacteristic.setTungstenElectrodeSize2(thicknessChange(str[i]));
-                        }else if (i == 2) {
-                            electricalCharacteristic.setTungstenElectrodeSize3(thicknessChange(str[i]));
+                    if (getByProcess(electricalCharacteristicJson, process, key) != null) {
+                        String[] str = getByProcess(electricalCharacteristicJson, process, key).toLowerCase().replaceAll("ø", "").split(",");
+                        for (int i = 0; i < str.length; i++) {
+                            if (i == 0) {
+                                electricalCharacteristic.setTungstenElectrodeSize1(thicknessChange(str[i]));
+                            }else if (i == 1) {
+                                electricalCharacteristic.setTungstenElectrodeSize2(thicknessChange(str[i]));
+                            }else if (i == 2) {
+                                electricalCharacteristic.setTungstenElectrodeSize3(thicknessChange(str[i]));
+                            }
                         }
                     }
+
                 }
             }
 
@@ -943,6 +1043,13 @@ public class InsertCompany01Ctrl {
                 if (!techniqueJson.isNull(key)) {
                     checkedKey.add(key);
                     technique.setMultiPassOrSinglePass(getByProcess(techniqueJson, process, key));
+                }
+            }
+
+            for (String key : keyData.pqrKey.getOrDefault("singleOrMultipleElectrodes", new HashSet<>())) {
+                if (!techniqueJson.isNull(key)) {
+                    checkedKey.add(key);
+                    technique.setSingleOrMultipleElectrode(getByProcess(techniqueJson, process, key));
                 }
             }
 
@@ -1069,10 +1176,13 @@ public class InsertCompany01Ctrl {
             // 이미 입력된 PQR 데이터인지 확인
             if (!isExistPQRInfoData(pqr.getPqrInfo())) {
                 pqrInfoSevice.insertPQRInfo(pqr.getPqrInfo());
-                System.out.print("return key: " + pqr.getPqrInfo().getId()+", ");
+                System.out.println(pqr.getPqrInfo().getPqrNo()+" completed!");
             } else {
                 pqr.getPqrInfo().setId(pqrInfoSevice.getPqrInfo(pqr.getPqrInfo()).getId());
             }
+
+            pqr.getJointDesign().setPqrInfoId(pqr.getPqrInfo().getId());
+            jointDesignService.insertPQRJointDesign(pqr.getJointDesign());
 
             for (WeldingParameter weldingParameter : pqr.getWeldingParameters()) {
                  weldingParameter.setPqrInfoId(pqr.getPqrInfo().getId());

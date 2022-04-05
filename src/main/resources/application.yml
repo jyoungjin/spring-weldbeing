@@ -61,6 +61,8 @@ map:
   pqrKey:
     pqrInfo:
       - pqr_info
+    jointDesign:
+      - joint_design
     weldingParameters:
       - welding_parameters
     baseMetals:
@@ -88,7 +90,6 @@ map:
     wpsNo:
       - welding_procedure_specification_no
       - wps_no
-      - wps_no
     type:
       - type
       - types
@@ -96,6 +97,14 @@ map:
       - company
     originalFileName:
       - original_file_name
+
+    # Joint Design
+    rootFace:
+      - root_face
+    rootOpening:
+      - root_opening
+    grooveAngle:
+      - groove_angle
 
     #  WeldingParameter
     beadNo:
@@ -138,8 +147,8 @@ map:
     heatInput:
       - heat_input(kj/mm)
       - heat_input(kJ/mm)
-      - heat_input
       - heat_input(kJ/cm)
+      - heat_input
 
     #  BaseMetal
     pNo:
@@ -153,12 +162,10 @@ map:
       - type_and_grade
     thickness:
       - thickness
+      - thickness_of_test_coupon
     diameter:
       - diameter
       - diameter_of_test_coupon
-    depositWeldMetalThickness:
-      - deposit_weld_metal
-      - deposit_weld_metal_thickness
 
     # FillerMetal
     sfaNo:
@@ -179,10 +186,15 @@ map:
     fillerProductForm:
       - filler_metal_product_form
       - filler_product_form
+      - type_of_filler_metal
     sizeOfElectrode:
       - size_of_filler_metal
       - size_of_electrode
       - size_of_electrode
+      - size_of_electrode
+    depositWeldMetalThickness:
+      - deposit_weld_metal
+      - deposit_weld_metal_thickness
     wireFluxClass:
       - wire_flux_class
     supplemental:

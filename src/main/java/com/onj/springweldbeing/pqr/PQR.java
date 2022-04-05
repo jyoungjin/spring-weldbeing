@@ -4,6 +4,7 @@ import com.onj.springweldbeing.pqr.basemetal.BaseMetal;
 import com.onj.springweldbeing.pqr.electricalcharacteristic.ElectricalCharacteristic;
 import com.onj.springweldbeing.pqr.fillermetal.FillerMetal;
 import com.onj.springweldbeing.pqr.gas.Gas;
+import com.onj.springweldbeing.pqr.jointdesign.JointDesign;
 import com.onj.springweldbeing.pqr.position.Position;
 import com.onj.springweldbeing.pqr.postweldheattreatment.PostWeldHeatTreatment;
 import com.onj.springweldbeing.pqr.pqrinfo.PQRInfo;
@@ -19,6 +20,7 @@ import java.util.List;
 public class PQR {
 
     private PQRInfo pqrInfo;
+    private JointDesign jointDesign;
     private List<WeldingParameter> weldingParameters = new ArrayList<>();
     private List<BaseMetal> baseMetals = new ArrayList<>();
     private List<FillerMetal> fillerMetals = new ArrayList<>();

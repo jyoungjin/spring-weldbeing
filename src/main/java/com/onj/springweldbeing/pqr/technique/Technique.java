@@ -10,6 +10,7 @@ public class Technique {
     private String stringerOrWeaveBead;
     private String oscillation;
     private String multiPassOrSinglePass;
+    private String singleOrMultipleElectrode;
     private String closedToOutChamber;
     private String useOfThermalProcesses;
     private String other;
