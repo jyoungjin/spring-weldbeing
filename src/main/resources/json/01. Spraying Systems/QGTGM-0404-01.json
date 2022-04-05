@@ -191,11 +191,11 @@
       },
       "percent_composition": {
         "GTAW": "Single",
-        "GM:": "Ar: 80%, CO2: 20%"
+        "GMAW": "Ar: 80%, CO2: 20%"
       },
       "flow": {
         "GTAW": "17L/min",
-        "GM:": "17L/min"
+        "GMAW": "17L/min"
       }
     },
     "gas_backing": {

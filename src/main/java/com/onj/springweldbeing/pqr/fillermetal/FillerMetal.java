@@ -12,9 +12,9 @@ public class FillerMetal {
     private String fNo;
     private String aNo;
     private String fillerProductForm;
-    private double sizeOfElectrode1;
-    private double sizeOfElectrode2;
-    private double sizeOfElectrode3;
+    private Double sizeOfElectrode1;
+    private Double sizeOfElectrode2;
+    private Double sizeOfElectrode3;
     private Double depositWeldMetalThickness;
     private String wireFluxClass;
     private String fluxTradeName;

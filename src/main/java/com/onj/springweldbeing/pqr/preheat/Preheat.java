@@ -6,10 +6,10 @@ import lombok.Data;
 public class Preheat {
     private int id;
     private int pqrInfoId;
-    private double preheatTempMin;
-    private double preheatTempMax;
-    private double interpassTempMin;
-    private double interpassTempMax;
+    private Double preheatTempMin;
+    private Double preheatTempMax;
+    private Double interpassTempMin;
+    private Double interpassTempMax;
     private String other;
     private String createTime;
     private int createUser;

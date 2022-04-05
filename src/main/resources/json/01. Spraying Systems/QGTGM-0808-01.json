@@ -153,7 +153,10 @@
     "alloy_elements": "N/A"
   },
   "position": {
-    "position_of_groove": "3G",
+    "position_of_groove": {
+      "GT": "3G",
+      "GM": "3G"
+    },
     "progression": "UP",
     "others": "None"
   },
@@ -180,11 +183,11 @@
       },
       "percent_composition": {
         "GTAW": "Single",
-        "GM:": "None"
+        "GM": "None"
       },
       "flow": {
         "GTAW": "15L/min",
-        "GM:": "None"
+        "GM": "None"
       }
     },
     "trailing_gas": {

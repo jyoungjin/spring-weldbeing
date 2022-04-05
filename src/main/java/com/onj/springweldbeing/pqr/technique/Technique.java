@@ -6,6 +6,7 @@ import lombok.Data;
 public class Technique {
     private int id;
     private int pqrInfoId;
+    private String process;
     private String stringerOrWeaveBead;
     private String oscillation;
     private String multiPassOrSinglePass;

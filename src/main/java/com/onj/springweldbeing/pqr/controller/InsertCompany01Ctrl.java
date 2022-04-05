@@ -6,8 +6,12 @@ import com.onj.springweldbeing.config.KeyData;
 import com.onj.springweldbeing.pqr.PQR;
 import com.onj.springweldbeing.pqr.basemetal.BaseMetal;
 import com.onj.springweldbeing.pqr.basemetal.BaseMetalService;
+import com.onj.springweldbeing.pqr.electricalcharacteristic.ElectricalCharacteristic;
+import com.onj.springweldbeing.pqr.electricalcharacteristic.ElectricalCharacteristicService;
 import com.onj.springweldbeing.pqr.fillermetal.FillerMetal;
 import com.onj.springweldbeing.pqr.fillermetal.FillerMetalService;
+import com.onj.springweldbeing.pqr.gas.Gas;
+import com.onj.springweldbeing.pqr.gas.GasService;
 import com.onj.springweldbeing.pqr.position.Position;
 import com.onj.springweldbeing.pqr.position.PositionService;
 import com.onj.springweldbeing.pqr.postweldheattreatment.PostWeldHeatTreatment;
@@ -16,6 +20,8 @@ import com.onj.springweldbeing.pqr.pqrinfo.PQRInfo;
 import com.onj.springweldbeing.pqr.pqrinfo.PQRInfoSevice;
 import com.onj.springweldbeing.pqr.preheat.Preheat;
 import com.onj.springweldbeing.pqr.preheat.PreheatService;
+import com.onj.springweldbeing.pqr.technique.Technique;
+import com.onj.springweldbeing.pqr.technique.TechniqueService;
 import com.onj.springweldbeing.pqr.weldingparameter.WeldingParameter;
 import com.onj.springweldbeing.pqr.weldingparameter.WeldingParameterService;
 import lombok.RequiredArgsConstructor;
@@ -33,14 +39,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 
 @RestController
-@RequestMapping("/insert")
+@RequestMapping("/company01")
 @RequiredArgsConstructor
 public class InsertCompany01Ctrl {
     private final KeyData keyData;
@@ -59,8 +67,14 @@ public class InsertCompany01Ctrl {
     PreheatService preheatService;
     @Autowired
     PostWeldHeatTreatmentService postWeldHeatTreatmentService;
+    @Autowired
+    GasService gasService;
+    @Autowired
+    ElectricalCharacteristicService electricalCharacteristicService;
+    @Autowired
+    TechniqueService techniqueService;
 
-    @GetMapping("/company01")
+    @GetMapping("/insert")
     @Transactional
     public ArrayList<PQR> getJsonFiles() throws IOException, JSONException, IllegalAccessException {
 
@@ -89,6 +103,7 @@ public class InsertCompany01Ctrl {
             for (String key : keyData.pqrKey.get("pqrInfo")) {
                 if (!pqrJson.isNull(key)) {
                     pqr.setPqrInfo(makePQRInfo(pqrJson.getJSONObject(key), pqr));
+                    checkNullField(pqr, pqr.getPqrInfo());
                     break;
                 }
             }
@@ -153,6 +168,31 @@ public class InsertCompany01Ctrl {
                 }
             }
 
+            // gas 섹션 전처리
+            for (String key : keyData.pqrKey.get("gases")) {
+                if (!pqrJson.isNull(key)) {
+                    pqr.setGases(makeGases(pqrJson.getJSONObject(key), weldingProcesses, pqr));
+                    break;
+                }
+            }
+
+            // electrical characteristics 섹션 전처리
+            for (String key : keyData.pqrKey.get("electricalCharacteristics")) {
+                if (!pqrJson.isNull(key)) {
+                    pqr.setElectricalCharacteristics(makeElectricalCharacteristics(pqrJson.getJSONObject(key), weldingProcesses, pqr));
+                    break;
+                }
+            }
+
+            // techniques 섹션 전처리
+            for (String key : keyData.pqrKey.get("techniques")) {
+                if (!pqrJson.isNull(key)) {
+                    pqr.setTechniques(makeTechniques(pqrJson.getJSONObject(key), weldingProcesses, pqr));
+                    break;
+                }
+            }
+
+
             pqrList.add(pqr);
 
             insertPQR(pqr);
@@ -161,22 +201,20 @@ public class InsertCompany01Ctrl {
         return pqrList;
     }
 
-
     // pqrInfo data 전처리
     private PQRInfo makePQRInfo(JSONObject pqrInfoJson, PQR pqr) throws JSONException, IllegalAccessException {
         PQRInfo pqrInfo = new PQRInfo();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-//        DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse(pqrInfoJson.getString("date").trim(), formatter);
         String[] types = pqrInfoJson.getString("type").split("\\+");
 
         pqrInfo.setPqrDate(date);
         pqrInfo.setWeldingProcess1(pqrInfoJson.getString("welding_process1"));
-        if(!pqrInfoJson.getString("welding_process2").isEmpty()){
+        if(!pqrInfoJson.getString("welding_process2").trim().isEmpty()){
             pqrInfo.setWeldingProcess2(pqrInfoJson.getString("welding_process2"));
         }
-        if(!pqrInfoJson.getString("welding_process3").isEmpty()){
+        if(!pqrInfoJson.getString("welding_process3").trim().isEmpty()){
             pqrInfo.setWeldingProcess3(pqrInfoJson.getString("welding_process3"));
         }
 
@@ -199,37 +237,38 @@ public class InsertCompany01Ctrl {
 
         for (String key : keyData.pqrKey.getOrDefault("pqrNo", new HashSet<>())) {
             if (!pqrInfoJson.isNull(key)) {
-                pqrInfo.setPqrNo(pqrInfoJson.getString(key));
+                pqrInfo.setPqrNo(pqrInfoJson.getString(key).trim());
                 pqrInfoJson.remove(key);
             }
         }
 
         for (String key : keyData.pqrKey.getOrDefault("wpsNo", new HashSet<>())) {
             if (!pqrInfoJson.isNull(key)) {
-                pqrInfo.setWpsNo(pqrInfoJson.getString(key));
+                pqrInfo.setWpsNo(pqrInfoJson.getString(key).trim());
                 pqrInfoJson.remove(key);
             }
         }
 
         for (String key : keyData.pqrKey.getOrDefault("company", new HashSet<>())) {
             if (!pqrInfoJson.isNull(key)) {
-                pqrInfo.setCompany(pqrInfoJson.getString(key));
+                pqrInfo.setCompany(pqrInfoJson.getString(key).trim());
                 pqrInfoJson.remove(key);
             }
         }
 
         for (String key : keyData.pqrKey.getOrDefault("originalFileName", new HashSet<>())) {
             if (!pqrInfoJson.isNull(key)) {
-                pqrInfo.setOriginFileName(pqrInfoJson.getString(key));
+                pqrInfo.setOriginFileName(pqrInfoJson.getString(key).trim());
                 pqrInfoJson.remove(key);
             }
         }
 
-        pqrInfo.setOther(pqrInfoJson.toString());
+        if(!pqrInfoJson.toString().equals("{}")){
+            pqrInfo.setOther(pqrInfoJson.toString());
+        }
 
         return pqrInfo;
     }
-
 
     // weldingParameter data 전처리
     private ArrayList<WeldingParameter> makeWeldingParameters(JSONArray weldingParametersJson, PQR pqr) throws JSONException, IllegalAccessException {
@@ -240,32 +279,32 @@ public class InsertCompany01Ctrl {
             WeldingParameter weldingParameter = new WeldingParameter();
 
             if (weldingParameterJson.has("action")) {
-                weldingParameter.setAction(weldingParameterJson.getString("action"));
+                weldingParameter.setAction(weldingParameterJson.getString("action").trim());
             }else{
                 for (String key : keyData.pqrKey.getOrDefault("process", new HashSet<>())) {
                     if (!weldingParameterJson.isNull(key)) {
-                        weldingParameter.setProcess(weldingParameterJson.getString(key));
+                        weldingParameter.setProcess(weldingParameterJson.getString(key).trim());
                         weldingParameterJson.remove(key);
                     }
                 }
 
                 for (String key : keyData.pqrKey.getOrDefault("beadNo", new HashSet<>())) {
                     if (!weldingParameterJson.isNull(key)) {
-                        weldingParameter.setBeadNo(weldingParameterJson.getString(key));
+                        weldingParameter.setBeadNo(weldingParameterJson.getString(key).trim());
                         weldingParameterJson.remove(key);
                     }
                 }
 
                 for (String key : keyData.pqrKey.getOrDefault("electrode", new HashSet<>())) {
                     if (!weldingParameterJson.isNull(key)) {
-                        weldingParameter.setElectrode(weldingParameterJson.getString(key));
+                        weldingParameter.setElectrode(weldingParameterJson.getString(key).trim());
                         weldingParameterJson.remove(key);
                     }
                 }
 
                 for (String key : keyData.pqrKey.getOrDefault("electrodeSize", new HashSet<>())) {
                     if (!weldingParameterJson.isNull(key)) {
-                        String electrodeSize = weldingParameterJson.getString(key).replaceAll("ø","");
+                        String electrodeSize = weldingParameterJson.getString(key).trim().replaceAll("ø","");
                         if(electrodeSize.contains(",")){
                             electrodeSize = electrodeSize.split(",")[0];
                         }
@@ -276,7 +315,7 @@ public class InsertCompany01Ctrl {
 
                 for (String key : keyData.pqrKey.getOrDefault("amps", new HashSet<>())) {
                     if (!weldingParameterJson.isNull(key)) {
-                        String amps = weldingParameterJson.getString(key);
+                        String amps = weldingParameterJson.getString(key).trim();
                         Double ampMin;
                         Double ampMax;
                         if(amps.contains("~")){
@@ -295,7 +334,7 @@ public class InsertCompany01Ctrl {
 
                 for (String key : keyData.pqrKey.getOrDefault("volt", new HashSet<>())) {
                     if (!weldingParameterJson.isNull(key)) {
-                        String amps = weldingParameterJson.getString(key);
+                        String amps = weldingParameterJson.getString(key).trim();
                         Double voltMin;
                         Double voltMax;
                         if(amps.contains("~")){
@@ -314,7 +353,7 @@ public class InsertCompany01Ctrl {
 
                 for (String key : keyData.pqrKey.getOrDefault("speed", new HashSet<>())) {
                     if (!weldingParameterJson.isNull(key)) {
-                        String speed = weldingParameterJson.getString(key);
+                        String speed = weldingParameterJson.getString(key).trim();
                         Double speedMin;
                         Double speedMax;
                         if(!speed.trim().isEmpty()){
@@ -345,7 +384,7 @@ public class InsertCompany01Ctrl {
 
                 for(String key : keyData.pqrKey.getOrDefault("heatInput", new HashSet<>())){
                     if (!weldingParameterJson.isNull(key)) {
-                        String heatInput = weldingParameterJson.getString(key);
+                        String heatInput = weldingParameterJson.getString(key).trim();
                         Double heatInputMin;
                         Double heatInputMax;
                         if(!heatInput.trim().isEmpty()){
@@ -368,7 +407,9 @@ public class InsertCompany01Ctrl {
                         weldingParameterJson.remove(key);
                     }
                 }
-                weldingParameter.setOther(weldingParameterJson.toString());
+                if(!weldingParameterJson.toString().trim().equals("{}")){
+                    weldingParameter.setOther(weldingParameterJson.toString());
+                }
 
             }
 
@@ -377,7 +418,6 @@ public class InsertCompany01Ctrl {
 
         return weldingParameters;
     }
-
 
     // base metal 전처리
     private ArrayList<BaseMetal> makeBaseMetals(JSONObject baseMetalsJson, PQR pqr) throws JSONException, IllegalAccessException {
@@ -388,8 +428,8 @@ public class InsertCompany01Ctrl {
 
         for (String key : keyData.pqrKey.getOrDefault("pNo", new HashSet<>())) {
             if (!baseMetalsJson.isNull(key)) {
-                baseMetal1.setPNo(baseMetalsJson.getString(key));
-                baseMetal2.setPNo(baseMetalsJson.getString("to_"+key));
+                baseMetal1.setPNo(baseMetalsJson.getString(key).trim());
+                baseMetal2.setPNo(baseMetalsJson.getString("to_"+key).trim());
                 baseMetalsJson.remove(key);
                 baseMetalsJson.remove("to_" + key);
             }
@@ -397,8 +437,8 @@ public class InsertCompany01Ctrl {
 
         for (String key : keyData.pqrKey.getOrDefault("grNo", new HashSet<>())) {
             if (!baseMetalsJson.isNull(key)) {
-                baseMetal1.setGrNo(baseMetalsJson.getString(key));
-                baseMetal2.setGrNo(baseMetalsJson.getString("to_"+key));
+                baseMetal1.setGrNo(baseMetalsJson.getString(key).trim());
+                baseMetal2.setGrNo(baseMetalsJson.getString("to_"+key).trim());
                 baseMetalsJson.remove(key);
                 baseMetalsJson.remove("to_" + key);
             }
@@ -406,8 +446,8 @@ public class InsertCompany01Ctrl {
 
         for (String key : keyData.pqrKey.getOrDefault("typeAndGrade", new HashSet<>())) {
             if (!baseMetalsJson.isNull(key)) {
-                baseMetal1.setTypeAndGrade(baseMetalsJson.getString(key));
-                baseMetal2.setTypeAndGrade(baseMetalsJson.getString("to_"+key));
+                baseMetal1.setTypeAndGrade(baseMetalsJson.getString(key).trim());
+                baseMetal2.setTypeAndGrade(baseMetalsJson.getString("to_"+key).trim());
                 baseMetalsJson.remove(key);
                 baseMetalsJson.remove("to_" + key);
             }
@@ -415,8 +455,8 @@ public class InsertCompany01Ctrl {
 
         for (String key : keyData.pqrKey.getOrDefault("thickness", new HashSet<>())) {
             if (!baseMetalsJson.isNull(key)) {
-                baseMetal1.setThickness(thicknessChange(baseMetalsJson.getString(key)));
-                baseMetal2.setThickness(thicknessChange(baseMetalsJson.getString("to_"+key)));
+                baseMetal1.setThickness(thicknessChange(baseMetalsJson.getString(key).trim()));
+                baseMetal2.setThickness(thicknessChange(baseMetalsJson.getString("to_"+key).trim()));
                 baseMetalsJson.remove(key);
                 baseMetalsJson.remove("to_" + key);
             }
@@ -424,14 +464,16 @@ public class InsertCompany01Ctrl {
 
         for (String key : keyData.pqrKey.getOrDefault("diameter", new HashSet<>())) {
             if (!baseMetalsJson.isNull(key)) {
-                baseMetal1.setDiameter(thicknessChange(baseMetalsJson.getString(key)));
-                baseMetal2.setDiameter(thicknessChange(baseMetalsJson.getString(key)));
+                baseMetal1.setDiameter(thicknessChange(baseMetalsJson.getString(key).trim()));
+                baseMetal2.setDiameter(thicknessChange(baseMetalsJson.getString(key).trim()));
                 baseMetalsJson.remove(key);
             }
         }
 
-        baseMetal1.setOther(baseMetalsJson.toString());
-        baseMetal2.setOther(baseMetalsJson.toString());
+        if(!baseMetalsJson.toString().trim().equals("{}")){
+            baseMetal1.setOther(baseMetalsJson.toString());
+            baseMetal2.setOther(baseMetalsJson.toString());
+        }
 
         baseMetals.add(baseMetal1);
         baseMetals.add(baseMetal2);
@@ -442,6 +484,7 @@ public class InsertCompany01Ctrl {
     // filler metal 전처리
     private ArrayList<FillerMetal> makeFillerMetals(JSONObject fillerMetalsJson, ArrayList<String> weldingProcesses, PQR pqr) throws JSONException, IllegalAccessException {
         ArrayList<FillerMetal> fillerMetals = new ArrayList<>();
+        HashSet<String> checkedKey = new HashSet<>();
 
         for (String process : weldingProcesses) {
 
@@ -450,117 +493,92 @@ public class InsertCompany01Ctrl {
 
             for (String key : keyData.pqrKey.getOrDefault("sfaNo", new HashSet<>())) {
                 if (!fillerMetalsJson.isNull(key)) {
-                    try {
-                        fillerMetalsJson.getJSONObject(key);
-                        fillerMetal.setSfaNo(fillerMetalsJson.getJSONObject(key).getString(process));
-                        fillerMetalsJson.getJSONObject(key).remove(process);
-                    } catch (JSONException e) {
-                        fillerMetal.setSfaNo(fillerMetalsJson.getString(key));
-                    }
+                    checkedKey.add(key);
+                    fillerMetal.setSfaNo(getByProcess(fillerMetalsJson,process,key));
                 }
             }
 
             for (String key : keyData.pqrKey.getOrDefault("awsClass", new HashSet<>())) {
                 if (!fillerMetalsJson.isNull(key)) {
-                    try {
-                        fillerMetalsJson.getJSONObject(key);
-                        fillerMetal.setAwsClass(fillerMetalsJson.getJSONObject(key).getString(process));
-                        fillerMetalsJson.getJSONObject(key).remove(process);
-                    } catch (JSONException e) {
-                        fillerMetal.setAwsClass(fillerMetalsJson.getString(key));
-                    }
+                    checkedKey.add(key);
+                    fillerMetal.setAwsClass(getByProcess(fillerMetalsJson,process,key));
                 }
             }
+
             for (String key : keyData.pqrKey.getOrDefault("fNo", new HashSet<>())) {
                 if (!fillerMetalsJson.isNull(key)) {
-                    try {
-                        fillerMetalsJson.getJSONObject(key);
-                        fillerMetal.setFNo(fillerMetalsJson.getJSONObject(key).getString(process));
-                        fillerMetalsJson.getJSONObject(key).remove(process);
-                    } catch (JSONException e) {
-                        fillerMetal.setFNo(fillerMetalsJson.getString(key));
-                    }
+                    checkedKey.add(key);
+                    fillerMetal.setFNo(getByProcess(fillerMetalsJson,process,key));
                 }
             }
+
             for (String key : keyData.pqrKey.getOrDefault("aNo", new HashSet<>())) {
                 if (!fillerMetalsJson.isNull(key)) {
-                    try {
-                        fillerMetalsJson.getJSONObject(key);
-                        fillerMetal.setANo(fillerMetalsJson.getJSONObject(key).getString(process));
-                        fillerMetalsJson.getJSONObject(key).remove(process);
-                    } catch (JSONException e) {
-                        fillerMetal.setANo(fillerMetalsJson.getString(key));
-                    }
+                    checkedKey.add(key);
+                    fillerMetal.setANo(getByProcess(fillerMetalsJson,process,key));
                 }
             }
+
             for (String key : keyData.pqrKey.getOrDefault("fillerProductForm", new HashSet<>())) {
                 if (!fillerMetalsJson.isNull(key)) {
-                    try {
-                        fillerMetalsJson.getJSONObject(key);
-                        fillerMetal.setFillerProductForm(fillerMetalsJson.getJSONObject(key).getString(process));
-                        fillerMetalsJson.getJSONObject(key).remove(process);
-                    } catch (JSONException e) {
-                        fillerMetal.setFillerProductForm(fillerMetalsJson.getString(key));
-                    }
+                    checkedKey.add(key);
+                    fillerMetal.setFillerProductForm(getByProcess(fillerMetalsJson,process,key));
                 }
             }
+
             for (String key : keyData.pqrKey.getOrDefault("sizeOfElectrode", new HashSet<>())) {
                 if (!fillerMetalsJson.isNull(key)) {
-                    try {
-                        fillerMetalsJson.getJSONObject(key);
-                        fillerMetal.setSizeOfElectrode1(thicknessChange(fillerMetalsJson.getJSONObject(key).getString(process)));
-                        fillerMetalsJson.getJSONObject(key).remove(process);
-                    } catch (JSONException e) {
-                        fillerMetal.setSizeOfElectrode1(thicknessChange(fillerMetalsJson.getString(key)));
+                    checkedKey.add(key);
+
+                    String[] str = getByProcess(fillerMetalsJson, process, key).toLowerCase().replaceAll("ø", "").split(",");
+                    for (int i = 0; i < str.length; i++) {
+                        if (i == 0) {
+                            fillerMetal.setSizeOfElectrode1(thicknessChange(str[i]));
+                        }else if (i == 1) {
+                            fillerMetal.setSizeOfElectrode2(thicknessChange(str[i]));
+                        }else if (i == 2) {
+                            fillerMetal.setSizeOfElectrode3(thicknessChange(str[i]));
+                        }
                     }
                 }
             }
+
             for (String key : keyData.pqrKey.getOrDefault("depositWeldMetalThickness", new HashSet<>())) {
                 if (!fillerMetalsJson.isNull(key)) {
-                    try {
-                        fillerMetalsJson.getJSONObject(key);
-                        fillerMetal.setDepositWeldMetalThickness(thicknessChange(fillerMetalsJson.getJSONObject(key).getString(process)));
-                        fillerMetalsJson.getJSONObject(key).remove(process);
-                    } catch (JSONException e) {
-                        fillerMetal.setDepositWeldMetalThickness(thicknessChange(fillerMetalsJson.getString(key)));
-                    }
+                    checkedKey.add(key);
+                    fillerMetal.setDepositWeldMetalThickness(thicknessChange(getByProcess(fillerMetalsJson,process,key)));
                 }
             }
+
             for (String key : keyData.pqrKey.getOrDefault("wireFluxClass", new HashSet<>())) {
                 if (!fillerMetalsJson.isNull(key)) {
-                    try {
-                        fillerMetalsJson.getJSONObject(key);
-                        fillerMetal.setWireFluxClass(fillerMetalsJson.getJSONObject(key).getString(process));
-                        fillerMetalsJson.getJSONObject(key).remove(process);
-                    } catch (JSONException e) {
-                        fillerMetal.setWireFluxClass(fillerMetalsJson.getString(key));
-                    }
+                    checkedKey.add(key);
+                    fillerMetal.setWireFluxClass(getByProcess(fillerMetalsJson,process,key));
                 }
             }
+
             for (String key : keyData.pqrKey.getOrDefault("supplemental", new HashSet<>())) {
                 if (!fillerMetalsJson.isNull(key)) {
-                    try {
-                        fillerMetalsJson.getJSONObject(key);
-                        fillerMetal.setSupplemental(fillerMetalsJson.getJSONObject(key).getString(process));
-                        fillerMetalsJson.getJSONObject(key).remove(process);
-                    } catch (JSONException e) {
-                        fillerMetal.setSupplemental(fillerMetalsJson.getString(key));
-                    }
+                    checkedKey.add(key);
+                    fillerMetal.setSupplemental(getByProcess(fillerMetalsJson,process,key));
                 }
             }
+
             for (String key : keyData.pqrKey.getOrDefault("alloyElements", new HashSet<>())) {
                 if (!fillerMetalsJson.isNull(key)) {
-                    try {
-                        fillerMetalsJson.getJSONObject(key);
-                        fillerMetal.setAlloyElements(fillerMetalsJson.getJSONObject(key).getString(process));
-                        fillerMetalsJson.getJSONObject(key).remove(process);
-                    } catch (JSONException e) {
-                        fillerMetal.setAlloyElements(fillerMetalsJson.getString(key));
-                    }
+                    checkedKey.add(key);
+                    fillerMetal.setAlloyElements(getByProcess(fillerMetalsJson,process,key));
                 }
             }
-            fillerMetal.setOther(fillerMetalsJson.toString());
+
             fillerMetals.add(fillerMetal);
+        }
+
+        for (String removeKey : checkedKey) {
+            fillerMetalsJson.remove(removeKey);
+        }
+        for (FillerMetal fillerMetal : fillerMetals) {
+            fillerMetal.setOther(fillerMetalsJson.toString());
         }
 
         return fillerMetals;
@@ -569,39 +587,36 @@ public class InsertCompany01Ctrl {
     // position 전처리
     private ArrayList<Position> makePositions(JSONObject positionsJson, ArrayList<String> weldingProcesses, PQR pqr) throws JSONException, IllegalAccessException {
         ArrayList<Position> positions = new ArrayList<>();
+        HashSet<String> checkedKey = new HashSet<>();
 
         for (String process : weldingProcesses) {
 
             Position position = new Position();
+            position.setProcess(process);
 
             for (String key : keyData.pqrKey.getOrDefault("positionOfGroove", new HashSet<>())) {
                 if (!positionsJson.isNull(key)) {
-                    try {
-                        positionsJson.getJSONObject(key);
-                        position.setPositionOfGroove(positionsJson.getJSONObject(key).getString(process));
-                        positionsJson.getJSONObject(key).remove(process);
-                    } catch (JSONException e) {
-                        position.setPositionOfGroove(positionsJson.getString(key));
-                    }
+                    checkedKey.add(key);
+                    position.setPositionOfGroove(getByProcess(positionsJson,process,key));
                 }
             }
 
             for (String key : keyData.pqrKey.getOrDefault("progression", new HashSet<>())) {
                 if (!positionsJson.isNull(key)) {
-                    try {
-                        positionsJson.getJSONObject(key);
-                        position.setProgression(positionsJson.getJSONObject(key).getString(process));
-                        positionsJson.getJSONObject(key).remove(process);
-                    } catch (JSONException e) {
-                        position.setProgression(positionsJson.getString(key));
-                    }
+                    checkedKey.add(key);
+                    position.setProgression(getByProcess(positionsJson, process, key));
                 }
             }
-
-            position.setOther(positionsJson.toString());
             positions.add(position);
-
         }
+
+        for (String removeKey : checkedKey) {
+            positionsJson.remove(removeKey);
+        }
+        for (Position position : positions) {
+            position.setOther(positionsJson.toString());
+        }
+
         return positions;
     }
 
@@ -614,7 +629,7 @@ public class InsertCompany01Ctrl {
         for (String key : keyData.pqrKey.getOrDefault("preheatTemp", new HashSet<>())) {
             if (!preheatJson.isNull(key)) {
                 String str = preheatJson.getString(key).trim().replaceAll("°C","");
-                if (isNone(str)) {
+                if (isEmpty(str)) {
                     preheatJson.remove(key);
                     break;
                 }
@@ -639,7 +654,7 @@ public class InsertCompany01Ctrl {
         for (String key : keyData.pqrKey.getOrDefault("interPassTemp", new HashSet<>())) {
             if (!preheatJson.isNull(key)) {
                 String str = preheatJson.getString(key).trim().replaceAll("°C","");
-                if (isNone(str)) {
+                if (isEmpty(str)) {
                     preheatJson.remove(key);
                     break;
                 }
@@ -674,7 +689,7 @@ public class InsertCompany01Ctrl {
         for (String key : keyData.pqrKey.getOrDefault("temperature", new HashSet<>())) {
             if (!postWeldHeatTreatmentJson.isNull(key)) {
                 String str = postWeldHeatTreatmentJson.getString(key).trim().replaceAll("°C","");
-                if (isNone(str)) {
+                if (isEmpty(str)) {
                     postWeldHeatTreatmentJson.remove(key);
                     break;
                 }
@@ -711,6 +726,254 @@ public class InsertCompany01Ctrl {
         return postWeldHeatTreatments;
     }
 
+    // gas 전처리
+    private ArrayList<Gas> makeGases(JSONObject gasJson, ArrayList<String> weldingProcesses, PQR pqr) throws JSONException, IllegalAccessException {
+        ArrayList<Gas> gases = new ArrayList<>();
+        HashSet<String> checkedKey = new HashSet<>();
+
+        for (String process : weldingProcesses) {
+
+            Gas gas = new Gas();
+            gas.setProcess(process);
+
+            for (String outerKey : keyData.pqrKey.getOrDefault("shieldingGas", new HashSet<>())) {
+                if (!gasJson.isNull(outerKey)) {
+                    checkedKey.add(outerKey);
+                    for (String key : keyData.pqrKey.getOrDefault("gas", new HashSet<>())) {
+                        if (!gasJson.getJSONObject(outerKey).isNull(key)) {
+                            if(!gasJson.getJSONObject(outerKey).isNull(key))
+                            gas.setShieldingGas(getByProcess(gasJson.getJSONObject(outerKey), process, key));
+                        }
+                    }
+                    for (String key : keyData.pqrKey.getOrDefault("percentComposition", new HashSet<>())) {
+                        if (!gasJson.getJSONObject(outerKey).isNull(key)) {
+                            gas.setShieldingGasComposition(getByProcess(gasJson.getJSONObject(outerKey),process,key));
+                        }
+                    }
+                    for (String key : keyData.pqrKey.getOrDefault("flow", new HashSet<>())) {
+                        if (!gasJson.getJSONObject(outerKey).isNull(key)) {
+                            String str = getByProcess(gasJson.getJSONObject(outerKey),process,key);
+                            if (!isEmpty(str)) {
+                                str = str.toLowerCase().replaceAll("l/min", "");
+                                if (str.contains("~")) {
+                                    String[] arr = str.split("~");
+                                    gas.setShieldingGasFlowMin(Double.valueOf(arr[0]));
+                                    gas.setShieldingGasFlowMax(Double.valueOf(arr[1]));
+                                } else {
+                                    gas.setShieldingGasFlowMin(Double.valueOf(str));
+                                    gas.setShieldingGasFlowMax(Double.valueOf(str));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (String outerKey : keyData.pqrKey.getOrDefault("gasBacking", new HashSet<>())) {
+                if (!gasJson.isNull(outerKey)) {
+                    checkedKey.add(outerKey);
+                    for (String key : keyData.pqrKey.getOrDefault("gas", new HashSet<>())) {
+                        if (!gasJson.getJSONObject(outerKey).isNull(key)) {
+                            if(!gasJson.getJSONObject(outerKey).isNull(key))
+                                gas.setBackingGas(getByProcess(gasJson.getJSONObject(outerKey), process, key));
+                        }
+                    }
+                    for (String key : keyData.pqrKey.getOrDefault("percentComposition", new HashSet<>())) {
+                        if (!gasJson.getJSONObject(outerKey).isNull(key)) {
+                            gas.setBackingGasComposition(getByProcess(gasJson.getJSONObject(outerKey),process,key));
+                        }
+                    }
+                    for (String key : keyData.pqrKey.getOrDefault("flow", new HashSet<>())) {
+                        if (!gasJson.getJSONObject(outerKey).isNull(key)) {
+                            String str = getByProcess(gasJson.getJSONObject(outerKey),process,key);
+                            if (!isEmpty(str)) {
+                                str = str.toLowerCase().replaceAll("l/min", "");
+                                if (str.contains("~")) {
+                                    String[] arr = str.split("~");
+                                    gas.setBackingGasFlowMin(Double.valueOf(arr[0]));
+                                    gas.setBackingGasFlowMax(Double.valueOf(arr[1]));
+                                } else {
+                                    gas.setBackingGasFlowMin(Double.valueOf(str));
+                                    gas.setBackingGasFlowMax(Double.valueOf(str));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (String outerKey : keyData.pqrKey.getOrDefault("trailingGas", new HashSet<>())) {
+                if (!gasJson.isNull(outerKey)) {
+                    checkedKey.add(outerKey);
+                    for (String key : keyData.pqrKey.getOrDefault("gas", new HashSet<>())) {
+                        if (!gasJson.getJSONObject(outerKey).isNull(key)) {
+                            gas.setTrailingGas(getByProcess(gasJson.getJSONObject(outerKey),process,key));
+                        }
+                    }
+                    for (String key : keyData.pqrKey.getOrDefault("percentComposition", new HashSet<>())) {
+                        if (!gasJson.getJSONObject(outerKey).isNull(key)) {
+                            gas.setTrailingGasComposition(getByProcess(gasJson.getJSONObject(outerKey),process,key));
+                        }
+                    }for (String key : keyData.pqrKey.getOrDefault("flow", new HashSet<>())) {
+                        if (!gasJson.getJSONObject(outerKey).isNull(key)) {
+                            String str = getByProcess(gasJson.getJSONObject(outerKey),process,key);
+                            if (!isEmpty(str)) {
+                                str = str.toLowerCase().replaceAll("l/min","");
+                                if (str.contains("~")) {
+                                    String[] arr = str.split("~");
+                                    gas.setTrailingGasFlowMin(Double.valueOf(arr[0]));
+                                    gas.setTrailingGasFlowMax(Double.valueOf(arr[1]));
+                                } else {
+                                    gas.setTrailingGasFlowMin(Double.valueOf(str));
+                                    gas.setTrailingGasFlowMax(Double.valueOf(str));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            gases.add(gas);
+        }
+
+        for (String removeKey : checkedKey) {
+            gasJson.remove(removeKey);
+        }
+        for (Gas gas : gases) {
+            gas.setOther(gasJson.toString());
+        }
+
+        return gases;
+    }
+
+    // electricalCharacteristic 전처리
+    private ArrayList<ElectricalCharacteristic> makeElectricalCharacteristics(JSONObject electricalCharacteristicJson, ArrayList<String> weldingProcesses, PQR pqr) throws JSONException, IllegalAccessException {
+        ArrayList<ElectricalCharacteristic> electricalCharacteristics = new ArrayList<>();
+        HashSet<String> checkedKey = new HashSet<>();
+
+        for (String process : weldingProcesses) {
+
+            ElectricalCharacteristic electricalCharacteristic = new ElectricalCharacteristic();
+            electricalCharacteristic.setProcess(process);
+
+            for (String key : keyData.pqrKey.getOrDefault("current", new HashSet<>())) {
+                if (!electricalCharacteristicJson.isNull(key)) {
+                    checkedKey.add(key);
+                    electricalCharacteristic.setCurrent(getByProcess(electricalCharacteristicJson, process, key));
+                }
+            }
+
+            for (String key : keyData.pqrKey.getOrDefault("polarity", new HashSet<>())) {
+                if (!electricalCharacteristicJson.isNull(key)) {
+                    checkedKey.add(key);
+                    electricalCharacteristic.setPolarity(getByProcess(electricalCharacteristicJson, process, key));
+                }
+            }
+
+            for (String key : keyData.pqrKey.getOrDefault("transferMode", new HashSet<>())) {
+                if (!electricalCharacteristicJson.isNull(key)) {
+                    checkedKey.add(key);
+                    electricalCharacteristic.setTransferMode(getByProcess(electricalCharacteristicJson, process, key));
+                }
+            }
+
+            for (String key : keyData.pqrKey.getOrDefault("tungstenElectrodeType", new HashSet<>())) {
+                if (!electricalCharacteristicJson.isNull(key)) {
+                    checkedKey.add(key);
+                    electricalCharacteristic.setTungstenElectrodeType(getByProcess(electricalCharacteristicJson, process, key));
+                }
+            }
+
+            for (String key : keyData.pqrKey.getOrDefault("tungstenElectrodeSize", new HashSet<>())) {
+                if (!electricalCharacteristicJson.isNull(key)) {
+                    checkedKey.add(key);
+
+                    String[] str = getByProcess(electricalCharacteristicJson, process, key).toLowerCase().replaceAll("ø", "").split(",");
+                    for (int i = 0; i < str.length; i++) {
+                        if (i == 0) {
+                            electricalCharacteristic.setTungstenElectrodeSize1(thicknessChange(str[i]));
+                        }else if (i == 1) {
+                            electricalCharacteristic.setTungstenElectrodeSize2(thicknessChange(str[i]));
+                        }else if (i == 2) {
+                            electricalCharacteristic.setTungstenElectrodeSize3(thicknessChange(str[i]));
+                        }
+                    }
+                }
+            }
+
+            electricalCharacteristics.add(electricalCharacteristic);
+        }
+
+        for (String removeKey : checkedKey) {
+            electricalCharacteristicJson.remove(removeKey);
+        }
+
+        for (ElectricalCharacteristic electricalCharacteristic : electricalCharacteristics) {
+            electricalCharacteristic.setOther(electricalCharacteristicJson.toString());
+        }
+
+        return electricalCharacteristics;
+    }
+
+    // technique 전처리
+    private ArrayList<Technique> makeTechniques(JSONObject techniqueJson, ArrayList<String> weldingProcesses, PQR pqr) throws JSONException, IllegalAccessException {
+        ArrayList<Technique> techniques = new ArrayList<>();
+        HashSet<String> checkedKey = new HashSet<>();
+
+        for (String process : weldingProcesses) {
+
+            Technique technique = new Technique();
+            technique.setProcess(process);
+
+            for (String key : keyData.pqrKey.getOrDefault("stringerOrWeaveBead", new HashSet<>())) {
+                if (!techniqueJson.isNull(key)) {
+                    checkedKey.add(key);
+                    technique.setStringerOrWeaveBead(getByProcess(techniqueJson, process, key));
+                }
+            }
+
+            for (String key : keyData.pqrKey.getOrDefault("oscillation", new HashSet<>())) {
+                if (!techniqueJson.isNull(key)) {
+                    checkedKey.add(key);
+                    technique.setOscillation(getByProcess(techniqueJson, process, key));
+                }
+            }
+
+            for (String key : keyData.pqrKey.getOrDefault("multiPassOrSinglePass", new HashSet<>())) {
+                if (!techniqueJson.isNull(key)) {
+                    checkedKey.add(key);
+                    technique.setMultiPassOrSinglePass(getByProcess(techniqueJson, process, key));
+                }
+            }
+
+            for (String key : keyData.pqrKey.getOrDefault("closedToOutChamber", new HashSet<>())) {
+                if (!techniqueJson.isNull(key)) {
+                    checkedKey.add(key);
+                    technique.setClosedToOutChamber(getByProcess(techniqueJson, process, key));
+                }
+            }
+
+            for (String key : keyData.pqrKey.getOrDefault("useOfThermalProcesses", new HashSet<>())) {
+                if (!techniqueJson.isNull(key)) {
+                    checkedKey.add(key);
+                    technique.setUseOfThermalProcesses(getByProcess(techniqueJson, process, key));
+                }
+            }
+
+            techniques.add(technique);
+        }
+
+        for (String removeKey : checkedKey) {
+            techniqueJson.remove(removeKey);
+        }
+
+        for (Technique technique : techniques) {
+            technique.setOther(techniqueJson.toString());
+        }
+
+        return techniques;
+    }
+
     // PQR Info 데이터가 이미 존재 하는 Data 인지 확인
     private boolean isExistPQRInfoData(PQRInfo pqrInfo){
         boolean isExist = false;
@@ -738,7 +1001,7 @@ public class InsertCompany01Ctrl {
 
         str = str.trim().toLowerCase().replaceAll("ø","");
 
-        if (str.equals("") || str.equals("-") || str.equals("n/a") || str.equals("none")) {
+        if (isEmpty(str)) {
             return null;
         }
 
@@ -754,18 +1017,55 @@ public class InsertCompany01Ctrl {
 
     }
 
-    private boolean isNone(String str){
-        str = str.toLowerCase();
-        if (str.equals("") || str.equals("-") || str.equals("n/a") || str.equals("none")) {
-            return true;
+    // 비어진 문자열이면 true return
+    private boolean isEmpty(String str) throws NullPointerException{
+
+        try {
+            str = str.toLowerCase();
+            if (str.equals("") || str.equals("-") || str.equals("n/a") || str.equals("none")) {
+                return true;
+            }
+        } catch (NullPointerException e) {
         }
+
         return false;
     }
 
+    // null 필드를 확인해서 PQR 에러 항목에 추가
+    private void checkNullField(PQR pqr, Object object) throws IllegalAccessException {
+        Field[] fields = object.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            if (field.get(object) == null) {
+                pqr.getErrors().add(object.getClass().getSimpleName() + " : " + field.getName() + " is null");
+            }
+        }
+    }
+
+    // process에 분리된 값, 분리되지 않은 값에서 해당하는 값을 찾아오는 메서드
+    private String getByProcess(JSONObject jsonObject, String process, String key) throws JSONException {
+
+        try {
+            Iterator<String> iterator = jsonObject.getJSONObject(key).keys();
+            while (iterator.hasNext()) {
+                String innerKey = iterator.next();
+                if (process.contains(innerKey)) {
+                    return jsonObject.getJSONObject(key).getString(innerKey).trim();
+                }
+            }
+        } catch (JSONException e) {
+            return jsonObject.getString(key);
+        }
+
+        return null;
+    }
+
+    // DB insert 메서드
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     public void insertPQR(PQR pqr) throws RuntimeException {
 
         try {
+
             // 이미 입력된 PQR 데이터인지 확인
             if (!isExistPQRInfoData(pqr.getPqrInfo())) {
                 pqrInfoSevice.insertPQRInfo(pqr.getPqrInfo());
@@ -802,6 +1102,21 @@ public class InsertCompany01Ctrl {
             for (PostWeldHeatTreatment postWeldHeatTreatment : pqr.getPostWeldHeatTreatments()) {
                 postWeldHeatTreatment.setPqrInfoId(pqr.getPqrInfo().getId());
                 postWeldHeatTreatmentService.insertPQRPostWeldHeatTreatment(postWeldHeatTreatment);
+            }
+
+            for (Gas gas : pqr.getGases()) {
+                gas.setPqrInfoId(pqr.getPqrInfo().getId());
+                gasService.insertPQRGas(gas);
+            }
+
+            for (ElectricalCharacteristic electricalCharacteristic : pqr.getElectricalCharacteristics()) {
+                electricalCharacteristic.setPqrInfoId(pqr.getPqrInfo().getId());
+                electricalCharacteristicService.insertPQRElectricalCharacteristic(electricalCharacteristic);
+            }
+
+            for (Technique technique : pqr.getTechniques()) {
+                technique.setPqrInfoId(pqr.getPqrInfo().getId());
+                techniqueService.insertPQRTechnique(technique);
             }
 
         } catch (Exception e) {

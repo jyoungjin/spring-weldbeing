@@ -11,9 +11,9 @@ public class ElectricalCharacteristic {
     private String polarity;
     private String transferMode;
     private String tungstenElectrodeType;
-    private double tungstenElectrodeSize1;
-    private double tungstenElectrodeSize2;
-    private double tungstenElectrodeSize3;
+    private Double tungstenElectrodeSize1;
+    private Double tungstenElectrodeSize2;
+    private Double tungstenElectrodeSize3;
     private String other;
     private String createTime;
     private int createUser;

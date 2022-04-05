@@ -6,8 +6,8 @@ import lombok.Data;
 public class PostWeldHeatTreatment {
     private int id;
     private int pqrInfoId;
-    private double temperatureMin;
-    private double temperatureMax;
+    private Double temperatureMin;
+    private Double temperatureMax;
     private String holdingTime;
     private String other;
     private String createTime;
