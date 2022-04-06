@@ -1149,6 +1149,11 @@ public class InsertCompany01Ctrl {
         }
     }
 
+    // null check
+    private boolean isStringEmpty(String str) {
+        return str == null || str.trim().isEmpty();
+    }
+
     // process에 분리된 값, 분리되지 않은 값에서 해당하는 값을 찾아오는 메서드
     private String getByProcess(JSONObject jsonObject, String process, String key) throws JSONException {
 
